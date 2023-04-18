@@ -7,15 +7,24 @@
 
   <body>
     <div class="mainWrapper">
-      <div class="inputWrapper" style="display: flex; ">
+      <div
+        class="inputWrapper"
+        style="display: flex; flex-direction: column; max-width: 90%; "
+      >
         <input type="text" id="search" placeholder="Search expansions..." />
+        <form id="expansion-form">
+          <input type="text" id="expansion-key" placeholder="Expansion key" />
+          <input
+            type="text"
+            id="expansion-value"
+            placeholder="Expansion value"
+          />
+          <div class="btnWrapper">
+            <button type="submit" id="save-expansion">Save</button>
+            <button type="button" id="cancel-expansion">Cancel</button>
+          </div>
+        </form>
       </div>
-      <form id="expansion-form">
-        <input type="text" id="expansion-key" placeholder="Expansion key" />
-        <input type="text" id="expansion-value" placeholder="Expansion value" />
-        <button type="submit" id="save-expansion">Save</button>
-        <button type="button" id="cancel-expansion">Cancel</button>
-      </form>
       <ul id="results"></ul>
     </div>
     <script src="expansions_manager.js"></script>

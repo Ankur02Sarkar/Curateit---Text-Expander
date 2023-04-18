@@ -10,6 +10,8 @@ body {
 
 .container {
     background-color: #ffffff;
+    display: grid;
+    gap: 10px;
     width: 90vmin;
     padding: 50px 30px;
     position: absolute;
@@ -30,6 +32,7 @@ body {
 button {
     height: 28px;
     width: 28px;
+    cursor: pointer;
     display: grid;
     place-items: center;
     border-radius: 3px;
@@ -37,6 +40,10 @@ button {
     background-color: #ffffff;
     outline: none;
     color: #020929;
+}
+
+button:hover {
+    background-color: #e2e2e2;
 }
 
 select {
@@ -86,4 +93,45 @@ input[type="color"]::-moz-color-swatch {
 
 .active {
     background-color: #e0e9ff;
+}
+
+
+.btn {
+    background: #3498db;
+    background-image: -webkit-linear-gradient(top, #3498db, #2980b9);
+    background-image: -moz-linear-gradient(top, #3498db, #2980b9);
+    background-image: -ms-linear-gradient(top, #3498db, #2980b9);
+    background-image: -o-linear-gradient(top, #3498db, #2980b9);
+    background-image: linear-gradient(to bottom, #3498db, #2980b9);
+    -webkit-border-radius: 28;
+    -moz-border-radius: 28;
+    border-radius: 28px;
+    font-family: Arial;
+    color: #ffffff;
+    width: fit-content;
+    font-size: 20px;
+    padding: 10px 20px 10px 20px;
+    text-decoration: none;
+    margin: auto;
+}
+
+.btn:hover {
+    background: #3cb0fd;
+    background-image: -webkit-linear-gradient(top, #3cb0fd, #3498db);
+    background-image: -moz-linear-gradient(top, #3cb0fd, #3498db);
+    background-image: -ms-linear-gradient(top, #3cb0fd, #3498db);
+    background-image: -o-linear-gradient(top, #3cb0fd, #3498db);
+    background-image: linear-gradient(to bottom, #3cb0fd, #3498db);
+    text-decoration: none;
+}
+
+.shortcut {
+    border: 1px solid #dddddd;
+}
+
+.shortcut-input {
+    margin: auto;
+    font-family: "Poppins", sans-serif;
+    display: flex;
+    gap: 20px;
 }
