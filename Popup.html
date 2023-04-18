@@ -1,33 +1,17 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Popup</title>
     <link rel="stylesheet" href="pop-up.css" />
   </head>
-
   <body>
-    <div class="mainWrapper">
-      <div
-        class="inputWrapper"
-        style="display: flex; flex-direction: column; max-width: 90%; "
-      >
-        <input type="text" id="search" placeholder="Search expansions..." />
-        <form id="expansion-form">
-          <input type="text" id="expansion-key" placeholder="Expansion key" />
-          <input
-            type="text"
-            id="expansion-value"
-            placeholder="Expansion value"
-          />
-          <div class="btnWrapper">
-            <button type="submit" id="save-expansion">Save</button>
-            <button type="button" id="cancel-expansion">Cancel</button>
-          </div>
-        </form>
-      </div>
-      <ul id="results"></ul>
+    <div class="container">
+      <h1>Text Expander</h1>
+      <button id="addExpansionBtn">ADD</button>
+      <div id="expansionsList"></div>
     </div>
-    <script src="expansions_manager.js"></script>
     <script src="popup.js"></script>
   </body>
 </html>

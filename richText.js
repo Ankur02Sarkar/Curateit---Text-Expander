@@ -114,4 +114,19 @@ const highlighterRemover = (className) => {
   });
 };
 
+
+document.getElementById("saveBtn").addEventListener("click", (event) => {
+  event.preventDefault();
+  const shortcut = document.getElementById("shortcut").value;
+  const expansion = document.getElementById("text-input").innerHTML;
+
+  if (shortcut && expansion) {
+    localStorage.setItem(shortcut, expansion);
+    alert("Shortcut and expansion saved successfully!");
+  } else {
+    alert("Please enter both shortcut and expansion.");
+  }
+});
+
+
 window.onload = initializer();

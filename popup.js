@@ -1,70 +1,28 @@
-const searchInput = document.getElementById("search");
-const resultsList = document.getElementById("results");
-const expansionForm = document.getElementById("expansion-form");
-const expansionKeyInput = document.getElementById("expansion-key");
-const expansionValueInput = document.getElementById("expansion-value");
-const saveExpansionButton = document.getElementById("save-expansion");
-const cancelExpansionButton = document.getElementById("cancel-expansion");
-
-let currentEditingKey = null;
-
-async function filterExpansions(query) {
-  const expansions = await window.expansionsManager.getExpansions();
-  return Object.entries(expansions).filter(
-    ([key, value]) =>
-      key.toLowerCase().includes(query.toLowerCase()) ||
-      value.toLowerCase().includes(query.toLowerCase())
-  );
-}
-
-async function updateResultsList(filteredExpansions) {
-  resultsList.innerHTML = "";
-
-  filteredExpansions.forEach(([key, value]) => {
-    const listItem = document.createElement("li");
-    listItem.innerHTML = `<span>${key}</span> ${value}`;
-    listItem.onclick = () => {
-      currentEditingKey = key;
-      expansionKeyInput.value = key;
-      expansionValueInput.value = value;
-      expansionForm.style.display = "block";
-    };
-    resultsList.appendChild(listItem);
-  });
-}
-
-searchInput.addEventListener("input", async (event) => {
-  const query = event.target.value.trim();
-  const filteredExpansions = await filterExpansions(query);
-  await updateResultsList(filteredExpansions);
+document.getElementById("addExpansionBtn").addEventListener("click", () => {
+  chrome.tabs.create({ url: "richText.html" });
 });
 
-expansionForm.addEventListener("submit", async (event) => {
-  event.preventDefault();
-  const key = expansionKeyInput.value.trim();
-  const value = expansionValueInput.value.trim();
+const displayExpansions = () => {
+  const expansionsList = document.getElementById("expansionsList");
+  expansionsList.innerHTML = "";
 
-  if (currentEditingKey) {
-    await window.expansionsManager.editExpansion(currentEditingKey, key, value);
-  } else {
-    await window.expansionsManager.addExpansion(key, value);
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i);
+    const value = localStorage.getItem(key);
+
+    const listItem = document.createElement("div");
+    listItem.classList.add("listItem");
+
+    const shortcut = document.createElement("p");
+    shortcut.textContent = `Shortcut: ${key}`;
+
+    const expansion = document.createElement("p");
+    expansion.textContent = `Expansion: ${value}`;
+
+    listItem.appendChild(shortcut);
+    listItem.appendChild(expansion);
+    expansionsList.appendChild(listItem);
   }
+};
 
-  expansionForm.style.display = "none";
-  expansionKeyInput.value = "";
-  expansionValueInput.value = "";
-  currentEditingKey = null;
-  await updateResultsList(await filterExpansions(""));
-});
-
-cancelExpansionButton.addEventListener("click", () => {
-  expansionForm.style.display = "none";
-  expansionKeyInput.value = "";
-  expansionValueInput.value = "";
-  currentEditingKey = null;
-});
-
-// Initialize the results list with all expansions
-(async () => {
-  await updateResultsList(await filterExpansions(""));
-})();
+document.addEventListener("DOMContentLoaded", displayExpansions);
