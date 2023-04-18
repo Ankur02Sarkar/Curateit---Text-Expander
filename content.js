@@ -1,4 +1,4 @@
-const expansions = window.expansions;
+const expansionsManager = new ExpansionsManager();
 
 // Inject CSS for suggestion box
 function injectStyles(css) {
@@ -27,7 +27,8 @@ injectStyles(`
   }
 `);
 
-function expandText(text) {
+async function expandText(text) {
+  const expansions = await expansionsManager.getExpansions();
   return text.replace(/:\w+/g, (match) => expansions[match] || match);
 }
 
@@ -50,7 +51,7 @@ function getTextBeforeCaret(contentEditableElement) {
   return clonedRange.toString();
 }
 
-function handleInputEvent(event) {
+async function handleInputEvent(event) {
   const target = event.target;
   const tagName = target.tagName.toLowerCase();
 
@@ -65,12 +66,12 @@ function handleInputEvent(event) {
   const host = window.location.hostname;
 
   const originalText = target.value || target.textContent;
-  const expandedText = expandText(originalText);
+  const expandedText = await expandText(originalText);
 
   handleSite(target, originalText, expandedText);
 }
 
-function showSuggestions(event) {
+async function showSuggestions(event) {
   const target = event.target;
   const tagName = target.tagName.toLowerCase();
 
@@ -101,6 +102,7 @@ function showSuggestions(event) {
 
   const typedText = textBeforeCursor.substring(lastColonIndex + 1);
 
+  const expansions = await expansionsManager.getExpansions();
   const suggestions = Object.keys(expansions).filter((key) =>
     key.startsWith(`:${typedText}`)
   );
@@ -167,8 +169,10 @@ function createSuggestionBox() {
 
 const suggestionBox = createSuggestionBox();
 
-document.addEventListener("input", handleInputEvent);
-document.addEventListener("input", showSuggestions);
+document.addEventListener("input", async (event) => {
+  await handleInputEvent(event);
+  showSuggestions(event);
+});
 document.addEventListener("click", (event) => {
   if (!event.target.closest("#suggestion-box")) {
     suggestionBox.style.display = "none";

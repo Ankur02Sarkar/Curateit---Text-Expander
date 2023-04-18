@@ -2,7 +2,7 @@
 <html>
   <head>
     <meta charset="UTF-8" />
-    <link rel="stylesheet" href="pop-up.css" />
+    <link rel="stylesheet" href="popup.css" />
   </head>
 
   <body>
@@ -10,9 +10,15 @@
       <div class="inputWrapper" style="display: flex; ">
         <input type="text" id="search" placeholder="Search expansions..." />
       </div>
+      <form id="expansion-form">
+        <input type="text" id="expansion-key" placeholder="Expansion key" />
+        <input type="text" id="expansion-value" placeholder="Expansion value" />
+        <button type="submit" id="save-expansion">Save</button>
+        <button type="button" id="cancel-expansion">Cancel</button>
+      </form>
       <ul id="results"></ul>
     </div>
-    <script src="expansions.js"></script>
+    <script src="expansions_manager.js"></script>
     <script src="popup.js"></script>
   </body>
 </html>

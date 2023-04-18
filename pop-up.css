@@ -72,3 +72,14 @@ body {
   border-bottom-left-radius: 8px;
   border-bottom-right-radius: 8px;
 }
+
+/* *********************** */
+
+#expansion-form {
+  display: none;
+  margin-bottom: 1rem;
+}
+
+#expansion-form input {
+  margin-right: 0.5rem;
+}
