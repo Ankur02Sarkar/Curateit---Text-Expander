@@ -1,0 +1,74 @@
+body {
+  margin: 0;
+}
+
+.mainWrapper {
+  background-color: #f7b42c;
+  background-image: linear-gradient(to bottom right, #f7b42c 0%, #fc575e 74%);
+  border: none;
+  padding: 20px;
+  width: max-content;
+  margin: 0 auto;
+}
+
+.mainWrapper input[type="text"] {
+  display: block;
+  width: 100%;
+  padding: 10px;
+  font-size: 16px;
+  border: none;
+  background-color: #eee;
+  border-radius: 4px;
+  margin: 0 auto;
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+.mainWrapper ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.mainWrapper li {
+  font-size: 17px;
+  margin-bottom: 10px;
+  padding: 10px;
+  border-radius: 4px;
+  transition: background-color 0.5s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: #fff;
+  transition: transform 0.5s;
+}
+
+
+.mainWrapper li:hover {
+  background-color: #f7b42c;
+  background-image: linear-gradient(315deg, #f7b42c 0%, #fc575e 74%);
+  transition: all 0.2s ease;
+  transform: scale(1.1);
+  color: #fff;
+  cursor: pointer;
+}
+
+.mainWrapper li:hover span {
+  transition: all 0.2s ease;
+  font-weight: bold;
+  color: #ffd93d;
+}
+
+.mainWrapper li:last-child {
+  margin-bottom: 0;
+}
+
+.mainWrapper li:first-child {
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+}
+
+.mainWrapper li:last-child {
+  border-bottom-left-radius: 8px;
+  border-bottom-right-radius: 8px;
+}
