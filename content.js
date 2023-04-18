@@ -100,6 +100,7 @@ function showSuggestions(event) {
   }
 
   const typedText = textBeforeCursor.substring(lastColonIndex + 1);
+
   const suggestions = Object.keys(expansions).filter((key) =>
     key.startsWith(`:${typedText}`)
   );
@@ -173,11 +174,3 @@ document.addEventListener("click", (event) => {
     suggestionBox.style.display = "none";
   }
 });
-
-/*
-
-display block;
-left 603
-top 215 --- 391 
-
-*/
