@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "Custom Search Bar Shortcut",
+  "name": "Curateit Search",
   "version": "1.0.0",
-  "description": "Replace 'c/me' with a custom link in the Chrome search bar",
+  "description": "Type 'c:' in the search bar and hit space and enter shortcut",
   "action": {
     "default_popup": "index.html",
     "default_icon": {
@@ -20,6 +20,9 @@
     "service_worker": "background.js"
   },
   "omnibox": {
-    "keyword": "c"
-  }
+    "keyword": "c:"
+  },
+  "permissions": [
+    "storage"
+  ]
 }
