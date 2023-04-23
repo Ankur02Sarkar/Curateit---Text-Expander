@@ -9,10 +9,4 @@ chrome.omnibox.onInputEntered.addListener((text, disposition) => {
       });
     }
   });
-  // const url = localStorage.getItem(STORAGE_PREFIX + text);
-  // if (url) {
-  //   chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-  //     chrome.tabs.update(tabs[0].id, { url });
-  //   });
-  // }
 });
