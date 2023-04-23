@@ -11,15 +11,3 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
-
-.jodit-status-bar {
-  visibility: collapse;
-}
-
-.jodit-status-bar a.jodit-status-bar-link {
-  display: none ;
-}
-.joditContainer{
-  width: 700px;
-  margin: auto;
-}
