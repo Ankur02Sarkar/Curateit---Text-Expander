@@ -19,10 +19,11 @@ body {
 }
 
 #todolist {
-  margin: 4rem auto;
+  /* margin: 4rem auto; */
   padding: 2rem 3rem 3rem;
   max-width: 500px;
-  background: #FF6666;
+  /* background: #FF6666; */
+  background-image: linear-gradient(315deg, #ffab00 0%, #ff5159 74%);
   color: #FFF;
   /* box-shadow: -20px -20px 0px 0px rgba(100, 100, 100, .1); */
 }
