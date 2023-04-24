@@ -14,21 +14,22 @@ function App() {
       window.chrome.storage.local.set({ [STORAGE_PREFIX + text]: url }, () => {
         setText("");
         setUrl("");
+        fetchShortcuts();
       });
     }
   };
 
-  // const fetchShortcuts = () => {
-  //   window.chrome.storage.local.get(null, (items) => {
-  //     const savedShortcuts = Object.entries(items)
-  //       .filter(([key]) => key.startsWith(STORAGE_PREFIX))
-  //       .map(([key, value]) => ({
-  //         text: key.replace(STORAGE_PREFIX, ""),
-  //         url: value,
-  //       }));
-  //     setShortcuts(savedShortcuts);
-  //   });
-  // };
+  const editShortcut = (shortcut) => {
+    setText(shortcut.text);
+    setUrl(shortcut.url);
+  };
+
+  const deleteShortcut = (shortcut) => {
+    window.chrome.storage.local.remove(
+      STORAGE_PREFIX + shortcut.text,
+      fetchShortcuts
+    );
+  };
 
   const fetchShortcuts = () => {
     if (window.chrome && window.chrome.storage) {
@@ -54,39 +55,11 @@ function App() {
     <>
       <main id="todolist">
         <h1>
-          Todo List
-          <span>Get things done, one item at a time.</span>
+          Curateit Search
+          <span>Build your personal corner on the web</span>
         </h1>
-        <ul>
-          {shortcuts.map((shortcut, index) => (
-            <li className="">
-              <div className="labelWrapper">
-                <span className="label"> {shortcut.text} </span>
-                <span className="label"> {shortcut.url} </span>
-              </div>
-              <div className="actions">
-                <button
-                  type="button"
-                  aria-label="Done"
-                  title="Done"
-                  className="btn-picto"
-                >
-                  <AiOutlineEdit size={27} />
-                </button>
-                <button
-                  type="button"
-                  aria-label="Delete"
-                  title="Delete"
-                  className="btn-picto"
-                >
-                  <AiOutlineDelete size={27} />
-                </button>
-              </div>
-            </li>
-          ))}
-        </ul>
         <form name="newform">
-          {/* <label for="newitem">Add to the list</label> */}
+          <label for="newitem">Save your Shortcut</label>
           <input
             placeholder="URL"
             value={url}
@@ -99,6 +72,36 @@ function App() {
           />
           <button onClick={saveShortcut}>Save</button>
         </form>
+        <ul>
+          {shortcuts.map((shortcut, index) => (
+            <li className="">
+              <div className="labelWrapper">
+                <span className="label shortcutText"> {shortcut.text} </span>
+                <span className="label shortcutUrl"> {shortcut.url} </span>
+              </div>
+              <div className="actions">
+                <button
+                  type="button"
+                  aria-label="Edit"
+                  title="Edit"
+                  className="btn-picto"
+                  onClick={() => editShortcut(shortcut)}
+                >
+                  <AiOutlineEdit className="edit-btn" size={32} />
+                </button>
+                <button
+                  type="button"
+                  aria-label="Delete"
+                  title="Delete"
+                  className="btn-picto"
+                  onClick={() => deleteShortcut(shortcut)}
+                >
+                  <AiOutlineDelete className="delete-btn" size={32} />
+                </button>
+              </div>
+            </li>
+          ))}
+        </ul>
       </main>
     </>
   );
