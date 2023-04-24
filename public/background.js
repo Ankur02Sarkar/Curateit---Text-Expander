@@ -10,7 +10,7 @@ chrome.omnibox.onInputChanged.addListener((text, suggest) => {
       }));
 
     const suggestions = savedShortcuts
-      .filter((shortcut) => shortcut.text.startsWith(text))
+      .filter((shortcut) => !text || shortcut.text.startsWith(text))
       .map((shortcut) => ({
         content: shortcut.text,
         description: `${shortcut.text} - ${shortcut.url}`,
