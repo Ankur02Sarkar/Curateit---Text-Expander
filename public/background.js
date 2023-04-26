@@ -13,7 +13,7 @@ chrome.omnibox.onInputChanged.addListener((text, suggest) => {
       .filter((shortcut) => !text || shortcut.text.startsWith(text))
       .map((shortcut) => ({
         content: shortcut.text,
-        description: `${shortcut.text} - ${shortcut.url}`,
+        description: `<match>${shortcut.text}</match> - <url>${shortcut.url}</url>`,
       }));
 
     suggest(suggestions);
