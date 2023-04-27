@@ -182,106 +182,18 @@ function App() {
         )}
         {displayDiv === "saveText" && (
           <div className="saveText">
-            <form name="newform">
-              <label for="newitem">Save your Texts</label>
-              <input
-                placeholder="URL"
-                value={url}
-                onChange={(e) => setUrl(e.target.value)}
-              />
-              <input
-                placeholder="Text"
-                value={text}
-                onChange={(e) => setText(e.target.value)}
-              />
-              <button onClick={saveShortcut}>Save</button>
-            </form>
-            <ul>
-              <li className="">
-                <div className="labelWrapper">
-                  <span className="label shortcutText"> "shortcut.text" </span>
-                  <span className="label shortcutUrl"> "shortcut.url" </span>
-                </div>
-                <div className="actions">
-                  <button
-                    type="button"
-                    aria-label="Edit"
-                    title="Edit"
-                    className="btn-picto"
-                    onClick={() => editShortcut()}
-                  >
-                    <AiOutlineEdit className="edit-btn" size={32} />
-                  </button>
-                  <button
-                    type="button"
-                    aria-label="Delete"
-                    title="Delete"
-                    className="btn-picto"
-                    onClick={() => deleteShortcut()}
-                  >
-                    <AiOutlineDelete className="delete-btn" size={32} />
-                  </button>
-                </div>
-              </li>
+            <div>
+              <input type="text" placeholder="New shortcut..." />
+              <input type="text" placeholder="New expansion..." />
+              <button>Add</button>
+            </div>
 
-              <li className="">
-                <div className="labelWrapper">
-                  <span className="label shortcutText"> "shortcut.text" </span>
-                  <span className="label shortcutUrl"> "shortcut.url" </span>
-                </div>
-                <div className="actions">
-                  <button
-                    type="button"
-                    aria-label="Edit"
-                    title="Edit"
-                    className="btn-picto"
-                    onClick={() => editShortcut()}
-                  >
-                    <AiOutlineEdit className="edit-btn" size={32} />
-                  </button>
-                  <button
-                    type="button"
-                    aria-label="Delete"
-                    title="Delete"
-                    className="btn-picto"
-                    onClick={() => deleteShortcut()}
-                  >
-                    <AiOutlineDelete className="delete-btn" size={32} />
-                  </button>
-                </div>
+            <input type="text" id="search" placeholder="Search expansions..." />
+            <ul id="results">
+              <li>
+                <button>Delete</button>
+                <button>Edit</button>
               </li>
-
-              {shortcuts.map((shortcut, index) => (
-                <li className="">
-                  <div className="labelWrapper">
-                    <span className="label shortcutText">
-                      {" "}
-                      {shortcut.text}{" "}
-                    </span>
-                    <span className="label shortcutUrl"> {shortcut.url} </span>
-                  </div>
-                  <div className="actions">
-                    <button
-                      type="button"
-                      aria-label="Edit"
-                      title="Edit"
-                      className="btn-picto"
-                      onClick={() => editShortcut(shortcut)}
-                    >
-                      <AiOutlineEdit className="edit-btn" size={32} />
-                    </button>
-                    <button
-                      type="button"
-                      aria-label="Delete"
-                      title="Delete"
-                      className="btn-picto"
-                      onClick={() => deleteShortcut(shortcut)}
-                    >
-                      <AiOutlineDelete className="delete-btn" size={32} />
-                    </button>
-                  </div>
-                </li>
-              ))}
             </ul>
           </div>
         )}
