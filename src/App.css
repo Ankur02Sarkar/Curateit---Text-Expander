@@ -20,6 +20,7 @@ body {
 
 #todolist {
   padding: 2rem 3rem 3rem;
+  text-align: center;
   max-width: 500px;
   background-image: linear-gradient(315deg, #ffab00 0%, #ff5159 74%);
   color: #FFF;
@@ -126,6 +127,8 @@ form input {
   font-size: initial;
 }
 
+.linkBtn,
+.textBtn,
 form button {
   padding: 0 1.3rem;
   border: none;
@@ -139,11 +142,15 @@ form button {
   transition: background .2s ease-out;
 }
 
+.linkBtn:hover,
+.textBtn:hover,
 form button:hover {
   background: #ff2727;
 }
 
 form input,
+.linkBtn,
+.textBtn,
 form button {
   font-family: 'Quicksand', sans-serif;
   height: 3rem;

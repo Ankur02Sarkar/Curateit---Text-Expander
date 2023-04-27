@@ -1,4 +1,4 @@
-const STORAGE_PREFIX = "custom_search_shortcut_";
+const STORAGE_PREFIX = "curateit_";
 const VARIABLE_PLACEHOLDER = "{*}";
 
 chrome.omnibox.onInputChanged.addListener((text, suggest) => {
