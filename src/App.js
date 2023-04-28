@@ -169,7 +169,7 @@ function App() {
     <>
       <main id="todolist">
         <h1>
-          Curateit Search
+          Curateit
           <span>Build your personal corner on the web</span>
         </h1>
         <div className="btn-wrapper">
@@ -230,15 +230,13 @@ function App() {
         )}
         {displayDiv === "saveText" && (
           <div className="saveText">
-            <div>
+            <div style={{ display: "grid", gap: "7px" }}>
               <input
                 type="text"
                 placeholder="Search..."
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
               />
-            </div>
-            <div>
               <input
                 type="text"
                 placeholder="Shortcut"
@@ -251,17 +249,23 @@ function App() {
                 value={newExpansion}
                 onChange={(e) => setNewExpansion(e.target.value)}
               />
-              <button type="button" onClick={addExpansion}>
+              <button
+                type="button"
+                onClick={addExpansion}
+                style={{ marginLeft: "0px" }}
+              >
                 {editingKey ? "Update" : "Add"}
               </button>
             </div>
             <ul>
               {filteredExpansions.map(([key, value]) => (
                 <li key={key}>
-                  <span className="shortcut">
-                    {key.replace(STORAGE_TEXT_PREFIX, "")}
-                  </span>
-                  <span className="expansion">{value}</span>
+                  <div style={{ display: "flex", flexDirection: "column" }}>
+                    <span className="shortcut">
+                      {key.replace(STORAGE_TEXT_PREFIX, "")}
+                    </span>
+                    <span className="expansion">{value}</span>
+                  </div>
                   <div className="actions">
                     <button
                       type="button"
