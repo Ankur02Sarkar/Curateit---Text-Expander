@@ -2,13 +2,103 @@ import React, { useState, useEffect } from "react";
 import { AiOutlineEdit } from "react-icons/ai";
 import { AiOutlineDelete } from "react-icons/ai";
 import "./App.css";
-const STORAGE_PREFIX = "curateit_";
+const STORAGE_LINKS_PREFIX = "curateit_links_";
+const STORAGE_TEXT_PREFIX = "curateit_text_";
 
 function App() {
   const [text, setText] = useState("");
   const [url, setUrl] = useState("");
   const [shortcuts, setShortcuts] = useState([]);
   const [displayDiv, setDisplayDiv] = useState(null);
+  const [query, setQuery] = useState("");
+  const [expansions, setExpansions] = useState([]);
+  const [filteredExpansions, setFilteredExpansions] = useState([]);
+  const [newShortcut, setNewShortcut] = useState("");
+  const [newExpansion, setNewExpansion] = useState("");
+  const [editingKey, setEditingKey] = useState(null);
+
+  useEffect(() => {
+    fetchExpansions();
+  }, []);
+
+  useEffect(() => {
+    filterExpansions();
+  }, [query, expansions]);
+
+  const fetchExpansions = () => {
+    if (window.chrome && window.chrome.storage && window.chrome.storage.local) {
+      window.chrome.storage.local.get(null, (items) => {
+        const exps = Object.entries(items).filter(([key]) =>
+          key.startsWith(STORAGE_TEXT_PREFIX)
+        );
+        setExpansions(exps);
+      });
+    } else {
+      console.warn("Chrome storage API not available.");
+    }
+  };
+
+  const filterExpansions = () => {
+    const filtered = expansions.filter(([key, value]) => {
+      const formattedKey = key.replace(STORAGE_TEXT_PREFIX, "");
+      return (
+        formattedKey.toLowerCase().includes(query.toLowerCase()) ||
+        value.toLowerCase().includes(query.toLowerCase())
+      );
+    });
+    setFilteredExpansions(filtered);
+  };
+
+  const addExpansion = () => {
+    if (window.chrome && window.chrome.storage && window.chrome.storage.local) {
+      if (newShortcut && newExpansion) {
+        if (editingKey) {
+          window.chrome.storage.local.remove(editingKey, () => {
+            window.chrome.storage.local.set(
+              { [STORAGE_TEXT_PREFIX + newShortcut]: newExpansion },
+              () => {
+                setNewShortcut("");
+                setNewExpansion("");
+                setEditingKey(null);
+                fetchExpansions();
+              }
+            );
+          });
+        } else {
+          window.chrome.storage.local.set(
+            { [STORAGE_TEXT_PREFIX + newShortcut]: newExpansion },
+            () => {
+              setNewShortcut("");
+              setNewExpansion("");
+              fetchExpansions();
+            }
+          );
+        }
+      }
+    } else {
+      console.warn("Chrome storage API not available.");
+    }
+  };
+
+  const deleteExpansion = (key) => {
+    if (window.chrome && window.chrome.storage && window.chrome.storage.local) {
+      window.chrome.storage.local.remove(key, () => {
+        fetchExpansions();
+      });
+    } else {
+      console.warn("Chrome storage API not available.");
+    }
+  };
+
+  const editExpansion = (key) => {
+    if (window.chrome && window.chrome.storage && window.chrome.storage.local) {
+      setNewShortcut(key.replace(STORAGE_TEXT_PREFIX, ""));
+      setNewExpansion(expansions.find(([k]) => k === key)[1]);
+      setEditingKey(key);
+    } else {
+      console.warn("Chrome storage API not available.");
+    }
+  };
 
   const handleLinkBtnClick = () => {
     setDisplayDiv("saveLinks");
@@ -19,12 +109,19 @@ function App() {
   };
 
   const saveShortcut = () => {
-    if (text && url) {
-      window.chrome.storage.local.set({ [STORAGE_PREFIX + text]: url }, () => {
-        setText("");
-        setUrl("");
-        fetchShortcuts();
-      });
+    if (window.chrome && window.chrome.storage && window.chrome.storage.local) {
+      if (text && url) {
+        window.chrome.storage.local.set(
+          { [STORAGE_LINKS_PREFIX + text]: url },
+          () => {
+            setText("");
+            setUrl("");
+            fetchShortcuts();
+          }
+        );
+      }
+    } else {
+      console.warn("Chrome storage API not available.");
     }
   };
 
@@ -34,19 +131,23 @@ function App() {
   };
 
   const deleteShortcut = (shortcut) => {
-    window.chrome.storage.local.remove(
-      STORAGE_PREFIX + shortcut.text,
-      fetchShortcuts
-    );
+    if (window.chrome && window.chrome.storage && window.chrome.storage.local) {
+      window.chrome.storage.local.remove(
+        STORAGE_LINKS_PREFIX + shortcut.text,
+        fetchShortcuts
+      );
+    } else {
+      console.warn("Chrome storage API not available.");
+    }
   };
 
   const fetchShortcuts = () => {
-    if (window.chrome && window.chrome.storage) {
+    if (window.chrome && window.chrome.storage && window.chrome.storage.local) {
       window.chrome.storage.local.get(null, (items) => {
         const savedShortcuts = Object.entries(items)
-          .filter(([key]) => key.startsWith(STORAGE_PREFIX))
+          .filter(([key]) => key.startsWith(STORAGE_LINKS_PREFIX))
           .map(([key, value]) => ({
-            text: key.replace(STORAGE_PREFIX, ""),
+            text: key.replace(STORAGE_LINKS_PREFIX, ""),
             url: value,
           }));
         setShortcuts(savedShortcuts);
@@ -78,7 +179,7 @@ function App() {
         {displayDiv === "saveLinks" && (
           <div className="saveLinks">
             <form name="newform">
-              <label for="newitem">Save your Links</label>
+              <label htmlFor="newitem">Save your Links</label>
               <input
                 placeholder="URL"
                 value={url}
@@ -92,67 +193,10 @@ function App() {
               <button onClick={saveShortcut}>Save</button>
             </form>
             <ul>
-              <li className="">
-                <div className="labelWrapper">
-                  <span className="label shortcutText"> "shortcut.text" </span>
-                  <span className="label shortcutUrl"> "shortcut.url" </span>
-                </div>
-                <div className="actions">
-                  <button
-                    type="button"
-                    aria-label="Edit"
-                    title="Edit"
-                    className="btn-picto"
-                    onClick={() => editShortcut()}
-                  >
-                    <AiOutlineEdit className="edit-btn" size={32} />
-                  </button>
-                  <button
-                    type="button"
-                    aria-label="Delete"
-                    title="Delete"
-                    className="btn-picto"
-                    onClick={() => deleteShortcut()}
-                  >
-                    <AiOutlineDelete className="delete-btn" size={32} />
-                  </button>
-                </div>
-              </li>
-
-              <li className="">
-                <div className="labelWrapper">
-                  <span className="label shortcutText"> "shortcut.text" </span>
-                  <span className="label shortcutUrl"> "shortcut.url" </span>
-                </div>
-                <div className="actions">
-                  <button
-                    type="button"
-                    aria-label="Edit"
-                    title="Edit"
-                    className="btn-picto"
-                    onClick={() => editShortcut()}
-                  >
-                    <AiOutlineEdit className="edit-btn" size={32} />
-                  </button>
-                  <button
-                    type="button"
-                    aria-label="Delete"
-                    title="Delete"
-                    className="btn-picto"
-                    onClick={() => deleteShortcut()}
-                  >
-                    <AiOutlineDelete className="delete-btn" size={32} />
-                  </button>
-                </div>
-              </li>
-
               {shortcuts.map((shortcut, index) => (
-                <li className="">
+                <li className="" key={index}>
                   <div className="labelWrapper">
-                    <span className="label shortcutText">
-                      {" "}
-                      {shortcut.text}{" "}
-                    </span>
+                    <span className="label shortcutText">{shortcut.text}</span>
                     <span className="label shortcutUrl"> {shortcut.url} </span>
                   </div>
                   <div className="actions">
@@ -183,17 +227,59 @@ function App() {
         {displayDiv === "saveText" && (
           <div className="saveText">
             <div>
-              <input type="text" placeholder="New shortcut..." />
-              <input type="text" placeholder="New expansion..." />
-              <button>Add</button>
+              <input
+                type="text"
+                placeholder="Search..."
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+              />
             </div>
-
-            <input type="text" id="search" placeholder="Search expansions..." />
-            <ul id="results">
-              <li>
-                <button>Delete</button>
-                <button>Edit</button>
-              </li>
+            <div>
+              <input
+                type="text"
+                placeholder="Shortcut"
+                value={newShortcut}
+                onChange={(e) => setNewShortcut(e.target.value)}
+              />
+              <input
+                type="text"
+                placeholder="Expansion"
+                value={newExpansion}
+                onChange={(e) => setNewExpansion(e.target.value)}
+              />
+              <button type="button" onClick={addExpansion}>
+                {editingKey ? "Update" : "Add"}
+              </button>
+            </div>
+            <ul>
+              {filteredExpansions.map(([key, value]) => (
+                <li key={key}>
+                  <span className="shortcut">
+                    {key.replace(STORAGE_TEXT_PREFIX, "")}
+                  </span>
+                  <span className="expansion">{value}</span>
+                  <div className="actions">
+                    <button
+                      type="button"
+                      aria-label="Edit"
+                      title="Edit"
+                      className="btn-picto"
+                      onClick={() => editExpansion(key)}
+                    >
+                      <AiOutlineEdit className="edit-btn" size={32} />
+                    </button>
+                    <button
+                      type="button"
+                      aria-label="Delete"
+                      title="Delete"
+                      className="btn-picto"
+                      onClick={() => deleteExpansion(key)}
+                    >
+                      <AiOutlineDelete className="delete-btn" size={32} />
+                    </button>
+                  </div>
+                </li>
+              ))}
             </ul>
           </div>
         )}
