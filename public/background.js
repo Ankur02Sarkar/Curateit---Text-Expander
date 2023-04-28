@@ -1,4 +1,4 @@
-const STORAGE_LINKS_PREFIX = "curateit_";
+const STORAGE_LINKS_PREFIX = "curateit_links_";
 const VARIABLE_PLACEHOLDER = "{*}";
 
 chrome.omnibox.onInputChanged.addListener((text, suggest) => {
