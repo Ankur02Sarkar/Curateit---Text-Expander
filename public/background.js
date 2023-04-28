@@ -1,6 +1,5 @@
 const STORAGE_LINKS_PREFIX = "curateit_links_";
-const VARIABLE_PLACEHOLDER = "{*}";
-
+const VARIABLE_PLACEHOLDER = /{([^}]+)}/g;
 chrome.omnibox.onInputChanged.addListener((text, suggest) => {
   chrome.storage.local.get(null, (items) => {
     const savedShortcuts = Object.entries(items)
@@ -30,7 +29,9 @@ chrome.omnibox.onInputEntered.addListener((text, disposition) => {
   chrome.storage.local.get(STORAGE_LINKS_PREFIX + shortcutText, (result) => {
     let url = result[STORAGE_LINKS_PREFIX + shortcutText];
     if (url) {
-      url = url.replace(VARIABLE_PLACEHOLDER, variableValue);
+      url = url.replace(VARIABLE_PLACEHOLDER, (match, variable) => {
+        return variableValue;
+      });
       chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
         chrome.tabs.update(tabs[0].id, { url });
       });
