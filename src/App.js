@@ -49,41 +49,9 @@ function App() {
     setFilteredExpansions(filtered);
   };
 
-  // const addExpansion = () => {
-  //   if (window.chrome && window.chrome.storage && window.chrome.storage.local) {
-  //     if (newShortcut && newExpansion) {
-  //       if (editingKey) {
-  //         window.chrome.storage.local.remove(editingKey, () => {
-  //           window.chrome.storage.local.set(
-  //             { [STORAGE_TEXT_PREFIX + newShortcut]: newExpansion },
-  //             () => {
-  //               setNewShortcut("");
-  //               setNewExpansion("");
-  //               setEditingKey(null);
-  //               fetchExpansions();
-  //             }
-  //           );
-  //         });
-  //       } else {
-  //         window.chrome.storage.local.set(
-  //           { [STORAGE_TEXT_PREFIX + newShortcut]: newExpansion },
-  //           () => {
-  //             setNewShortcut("");
-  //             setNewExpansion("");
-  //             fetchExpansions();
-  //           }
-  //         );
-  //       }
-  //     }
-  //   } else {
-  //     console.warn("Chrome storage API not available.");
-  //   }
-  // };
-
   const addExpansion = () => {
     if (window.chrome && window.chrome.storage && window.chrome.storage.local) {
       if (newShortcut && newExpansion) {
-        // Add ':' in front of the newShortcut if it doesn't already start with it
         const formattedShortcut = newShortcut.startsWith(":")
           ? newShortcut
           : `:${newShortcut}`;

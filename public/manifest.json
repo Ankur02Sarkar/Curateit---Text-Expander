@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "Curateit Search",
-  "version": "2.0.0",
-  "description": "Type 'c:' in the search bar and hit space and enter shortcut",
+  "name": "Curateit",
+  "version": "1.0.0",
+  "description": "Save Links and Texts",
   "action": {
     "default_popup": "index.html",
     "default_icon": {
