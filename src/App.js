@@ -273,12 +273,18 @@ function App() {
             </div>
             <ul>
               {filteredExpansions.map(([key, value]) => (
-                <li key={key}>
-                  <div style={{ display: "flex", flexDirection: "column" }}>
-                    <span className="shortcut">
+                <li key={key} style={{ flexDirection: "column" }}>
+                  <div
+                    className="labelWrapper"
+                    style={{ display: "flex", flexDirection: "column" }}
+                  >
+                    <span
+                      className="label shortcutText"
+                      style={{ fontSize: "27px", fontWeight: "900" }}
+                    >
                       {key.replace(STORAGE_TEXT_PREFIX, "")}
                     </span>
-                    <span className="expansion">{value}</span>
+                    <span className="label shortcutUrl">{value}</span>
                   </div>
                   <div className="actions">
                     <button
