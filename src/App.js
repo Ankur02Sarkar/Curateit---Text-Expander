@@ -112,7 +112,8 @@ function App() {
     setDisplayDiv("saveText");
   };
 
-  const saveShortcut = () => {
+  const saveShortcut = (event) => {
+    event.preventDefault();
     if (window.chrome && window.chrome.storage && window.chrome.storage.local) {
       if (text && url) {
         window.chrome.storage.local.set(
@@ -194,7 +195,7 @@ function App() {
                 value={text}
                 onChange={(e) => setText(e.target.value)}
               />
-              <button onClick={saveShortcut}>Save</button>
+              <button onClick={(e) => saveShortcut(e)}>Save</button>
             </form>
             <ul>
               {shortcuts.map((shortcut, index) => (
@@ -230,7 +231,9 @@ function App() {
         )}
         {displayDiv === "saveText" && (
           <div className="saveText">
-            <div style={{ display: "grid", gap: "7px" }}>
+            <div
+              style={{ display: "flex", flexDirection: "column", gap: "7px" }}
+            >
               <input
                 type="text"
                 placeholder="Search..."
