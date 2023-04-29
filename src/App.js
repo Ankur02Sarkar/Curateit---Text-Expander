@@ -247,7 +247,12 @@ function App() {
                 placeholder="Expansion"
                 value={newExpansion}
                 onChange={(e) => setNewExpansion(e.target.value)}
-                rows={4}
+                rows={7}
+                sty={{
+                  background: "#f7f1f1",
+                  border: "none",
+                  fontSize: "medium",
+                }}
               />
               <button
                 type="button"

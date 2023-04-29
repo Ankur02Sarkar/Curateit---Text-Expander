@@ -53,12 +53,37 @@ function expandText(text, expansions) {
   return text.replace(/:[^\s]+/g, (match) => expansions[match] || match);
 }
 
+// function handleSite(target, originalText, expandedText) {
+//   if (originalText !== expandedText) {
+//     if (target.value !== undefined) {
+//       target.value = expandedText;
+//     } else {
+//       target.textContent = expandedText;
+//     }
+//   }
+// }
+function convertToHtml(text) {
+  const lines = text.split("\n");
+  let html = "";
+
+  for (const line of lines) {
+    if (line === "") {
+      html += "<div><br /></div>";
+    } else {
+      html += `<div>${line}</div>`;
+    }
+  }
+
+  return html;
+}
+
 function handleSite(target, originalText, expandedText) {
   if (originalText !== expandedText) {
     if (target.value !== undefined) {
       target.value = expandedText;
     } else {
-      target.textContent = expandedText;
+      const formattedHtml = convertToHtml(expandedText);
+      target.innerHTML = formattedHtml;
     }
   }
 }
