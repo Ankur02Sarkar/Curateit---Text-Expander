@@ -11,6 +11,7 @@ injectStyles(`
     position: absolute;
     z-index: 9999999;
     background-color: white;
+    color: black;
     border: 1px solid #ccc;
     font-family: Arial, sans-serif;
     box-shadow: 0 4px 6px rgba(0,0,0,0.1);
@@ -49,7 +50,7 @@ function fetchExpansions(callback) {
 }
 
 function expandText(text, expansions) {
-  return text.replace(/:\w+/g, (match) => expansions[match] || match);
+  return text.replace(/:[^\s]+/g, (match) => expansions[match] || match);
 }
 
 function handleSite(target, originalText, expandedText) {

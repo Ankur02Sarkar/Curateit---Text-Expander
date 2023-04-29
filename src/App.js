@@ -243,11 +243,11 @@ function App() {
                 value={newShortcut}
                 onChange={(e) => setNewShortcut(e.target.value)}
               />
-              <input
-                type="text"
+              <textarea
                 placeholder="Expansion"
                 value={newExpansion}
                 onChange={(e) => setNewExpansion(e.target.value)}
+                rows={4}
               />
               <button
                 type="button"
