@@ -243,17 +243,26 @@ function App() {
                 value={newShortcut}
                 onChange={(e) => setNewShortcut(e.target.value)}
               />
-              <textarea
-                placeholder="Expansion"
-                value={newExpansion}
-                onChange={(e) => setNewExpansion(e.target.value)}
-                rows={7}
-                sty={{
-                  background: "#f7f1f1",
-                  border: "none",
-                  fontSize: "medium",
-                }}
-              />
+              <div className="richtextWrapper">
+                <textarea
+                  placeholder="Expansion"
+                  value={newExpansion}
+                  onChange={(e) => setNewExpansion(e.target.value)}
+                  rows={7}
+                  style={{
+                    background: "#f7f1f1",
+                    border: "none",
+                    width: "100%",
+                    fontSize: "medium",
+                  }}
+                />
+                {/* <div>
+                  <button className="bold">B</button>
+                  <button className="italic">I</button>
+                  <button className="textColor">A</button>
+                  <button className="highlight">H</button>
+                </div> */}
+              </div>
               <button
                 type="button"
                 onClick={addExpansion}

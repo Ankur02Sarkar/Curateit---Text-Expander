@@ -53,15 +53,6 @@ function expandText(text, expansions) {
   return text.replace(/:[^\s]+/g, (match) => expansions[match] || match);
 }
 
-// function handleSite(target, originalText, expandedText) {
-//   if (originalText !== expandedText) {
-//     if (target.value !== undefined) {
-//       target.value = expandedText;
-//     } else {
-//       target.textContent = expandedText;
-//     }
-//   }
-// }
 function convertToHtml(text) {
   const lines = text.split("\n");
   let html = "";
