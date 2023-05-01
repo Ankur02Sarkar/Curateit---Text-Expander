@@ -17,8 +17,8 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
         chrome.runtime.getURL("shortcutPopup.html") +
         `?selectedText=${encodeURIComponent(selectedText)}`,
       type: "popup",
-      width: 300,
-      height: 200,
+      width: 600,
+      height: 320,
     });
   }
 });

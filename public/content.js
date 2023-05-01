@@ -56,7 +56,8 @@ function expandText(text, expansions) {
 function convertToHtml(text) {
   const lines = text.split("\n");
   let html = "";
-
+  // Gmail :- div
+  // Linkedin :- p
   for (const line of lines) {
     if (line === "") {
       html += "<div><br /></div>";
@@ -64,7 +65,6 @@ function convertToHtml(text) {
       html += `<div>${line}</div>`;
     }
   }
-
   return html;
 }
 
