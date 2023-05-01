@@ -52,17 +52,27 @@ function fetchExpansions(callback) {
 function expandText(text, expansions) {
   return text.replace(/:[^\s]+/g, (match) => expansions[match] || match);
 }
+function getTagForCurrentWebsite() {
+  const currentUrl = window.location.href;
+
+  if (currentUrl.includes("https://www.linkedin.com/")) {
+    return "p";
+  } else if (currentUrl.includes("https://mail.google.com/")) {
+    return "div";
+  } else {
+    return "div";
+  }
+}
 
 function convertToHtml(text) {
   const lines = text.split("\n");
   let html = "";
-  // Gmail :- div
-  // Linkedin :- p
+  const tag = getTagForCurrentWebsite();
   for (const line of lines) {
     if (line === "") {
-      html += "<div><br /></div>";
+      html += `<${tag}><br /></${tag}>`;
     } else {
-      html += `<div>${line}</div>`;
+      html += `<${tag}>${line}</${tag}>`;
     }
   }
   return html;
