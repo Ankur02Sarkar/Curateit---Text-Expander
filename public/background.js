@@ -1,5 +1,28 @@
 const STORAGE_LINKS_PREFIX = "curateit_links_";
 const VARIABLE_PLACEHOLDER = /{([^}]+)}/g;
+
+chrome.runtime.onInstalled.addListener(() => {
+  chrome.contextMenus.create({
+    id: "saveAsShortcut",
+    title: "Save as Shortcut",
+    contexts: ["selection"],
+  });
+});
+
+chrome.contextMenus.onClicked.addListener(async (info, tab) => {
+  if (info.menuItemId === "saveAsShortcut") {
+    const selectedText = info.selectionText;
+    chrome.windows.create({
+      url:
+        chrome.runtime.getURL("shortcutPopup.html") +
+        `?selectedText=${encodeURIComponent(selectedText)}`,
+      type: "popup",
+      width: 300,
+      height: 200,
+    });
+  }
+});
+
 chrome.omnibox.onInputChanged.addListener((text, suggest) => {
   chrome.storage.local.get(null, (items) => {
     const savedShortcuts = Object.entries(items)
