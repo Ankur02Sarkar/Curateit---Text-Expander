@@ -34,8 +34,20 @@
     "keyword": "c:"
   },
   "permissions": [
+    "tabs",
     "activeTab",
     "storage",
     "contextMenus"
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "formsPopup.html"
+      ],
+      "matches": [
+        "https://*/*",
+        "http://*/*"
+      ]
+    }
   ]
 }

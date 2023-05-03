@@ -118,9 +118,11 @@ function App() {
   const handleTextBtnClick = () => {
     setDisplayDiv("saveText");
   };
+
   const handleFormBtnClick = () => {
     setDisplayDiv("saveForms");
   };
+
   const saveShortcut = (event) => {
     event.preventDefault();
     if (window.chrome && window.chrome.storage && window.chrome.storage.local) {
@@ -242,6 +244,7 @@ function App() {
       console.warn("Chrome storage API not available.");
     }
   };
+
   const filterForms = () => {
     const filtered = forms.filter(([key, value]) => {
       const formattedKey = key.replace(STORAGE_FORM_PREFIX, "");
@@ -252,9 +255,11 @@ function App() {
     });
     setFilteredForms(filtered);
   };
+
   useEffect(() => {
     filterForms();
   }, [formQuery, forms]);
+
   useEffect(() => {
     fetchShortcuts();
   }, []);

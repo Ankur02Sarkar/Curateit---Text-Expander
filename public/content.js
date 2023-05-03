@@ -1,4 +1,5 @@
 const STORAGE_TEXT_PREFIX = "curateit_text_";
+const STORAGE_FORM_PREFIX = "curateit_form_";
 
 function injectStyles(css) {
   const style = document.createElement("style");
@@ -157,7 +158,11 @@ function showSuggestions(event) {
       suggestionBox.style.display = "none";
       return;
     }
-
+    const formsTrigger = "::forms";
+    if (textBeforeCursor.endsWith(formsTrigger)) {
+      openFormsPopup();
+      return;
+    }
     const typedText = textBeforeCursor.substring(lastColonIndex + 1);
     const suggestions = Object.keys(expansions).filter((key) =>
       key.startsWith(`:${typedText}`)
@@ -219,6 +224,66 @@ function showSuggestions(event) {
       }
     };
   });
+}
+
+function createIframeOverlay(url) {
+  const overlay = document.createElement("div");
+  overlay.style.position = "fixed";
+  overlay.style.top = "0";
+  overlay.style.left = "0";
+  overlay.style.width = "100%";
+  overlay.style.height = "100%";
+  overlay.style.backgroundColor = "rgba(0, 0, 0, 0.5)";
+  overlay.style.zIndex = "9999999";
+
+  const iframe = document.createElement("iframe");
+  iframe.src = url;
+  iframe.style.border = "none";
+  iframe.style.width = "400px";
+  iframe.style.height = "600px";
+  iframe.style.position = "absolute";
+  iframe.style.left = "50%";
+  iframe.style.top = "50%";
+  iframe.style.transform = "translate(-50%, -50%)";
+
+  overlay.appendChild(iframe);
+  document.body.appendChild(overlay);
+
+  overlay.addEventListener("click", (e) => {
+    if (e.target === overlay) {
+      document.body.removeChild(overlay);
+    }
+  });
+}
+
+// function openFormsPopup() {
+//   const url = chrome.runtime.getURL("formsPopup.html");
+//   createIframeOverlay(url);
+// }
+
+function openFormsPopup() {
+  const url = chrome.runtime.getURL("formsPopup.html");
+  const popupWidth = 400;
+  const popupHeight = 600;
+  const left = window.innerWidth / 2 - popupWidth / 2;
+  const top = window.innerHeight / 2 - popupHeight / 2;
+
+  window.open(
+    url,
+    "_blank",
+    `toolbar=no, 
+    location=no, 
+    directories=no, 
+    status=no, 
+    menubar=no, 
+    scrollbars=no, 
+    resizable=no, 
+    copyhistory=no, 
+    width=${popupWidth}, 
+    height=${popupHeight}, 
+    top=${top}, 
+    left=${left}`
+  );
 }
 
 document.addEventListener("input", handleInputEvent);
