@@ -262,7 +262,8 @@ function createIframeOverlay(url) {
 // }
 
 function openFormsPopup() {
-  const url = chrome.runtime.getURL("formsPopup.html");
+  const shortcut = ":ds";
+  const url = chrome.runtime.getURL(`formsPopup.html?shortcut=${encodeURIComponent(shortcut)}`);
   const popupWidth = 400;
   const popupHeight = 600;
   const left = window.innerWidth / 2 - popupWidth / 2;
@@ -285,6 +286,7 @@ function openFormsPopup() {
     left=${left}`
   );
 }
+
 
 document.addEventListener("input", handleInputEvent);
 document.addEventListener("input", showSuggestions);
