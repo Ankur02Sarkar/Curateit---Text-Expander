@@ -4,6 +4,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (shortcut) {
     const passedShortcut = document.getElementById("passed-shortcut");
+    const titleDiv = document.getElementById("form-popup-div");
 
     // Fetch the form data associated with the shortcut from Chrome storage
     if (window.chrome && window.chrome.storage && window.chrome.storage.local) {
@@ -15,13 +16,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if (formData) {
           // Display the form data in the passedShortcut element
-          passedShortcut.textContent = `Form Data for ${shortcut}: ${formData}`;
+          titleDiv.textContent = `Form Data for ${shortcut}:`;
+          passedShortcut.value = `${formData}`;
         } else {
-          passedShortcut.textContent = `No form data found for shortcut: ${shortcut}`;
+          passedShortcut.value = `No form data found for shortcut: ${shortcut}`;
         }
       });
     } else {
-      passedShortcut.textContent = "Chrome storage API not available.";
+      passedShortcut.value = "Chrome storage API not available.";
       console.warn("Chrome storage API not available.");
     }
   }

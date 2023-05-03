@@ -158,9 +158,11 @@ function showSuggestions(event) {
       suggestionBox.style.display = "none";
       return;
     }
-    const formsTrigger = "::forms";
-    if (textBeforeCursor.endsWith(formsTrigger)) {
-      openFormsPopup();
+    const formsTriggerPattern = /::forms\/(.+)/;
+    const match = textBeforeCursor.match(formsTriggerPattern);
+
+    if (match) {
+      openFormsPopup(match[1]);
       return;
     }
     const typedText = textBeforeCursor.substring(lastColonIndex + 1);
@@ -261,32 +263,45 @@ function createIframeOverlay(url) {
 //   createIframeOverlay(url);
 // }
 
-function openFormsPopup() {
-  const shortcut = ":ds";
-  const url = chrome.runtime.getURL(`formsPopup.html?shortcut=${encodeURIComponent(shortcut)}`);
-  const popupWidth = 400;
-  const popupHeight = 600;
-  const left = window.innerWidth / 2 - popupWidth / 2;
-  const top = window.innerHeight / 2 - popupHeight / 2;
+function openFormsPopup(val) {
+  const shortcut = ":" + val;
+  const storageKey = STORAGE_FORM_PREFIX + shortcut;
 
-  window.open(
-    url,
-    "_blank",
-    `toolbar=no, 
-    location=no, 
-    directories=no, 
-    status=no, 
-    menubar=no, 
-    scrollbars=no, 
-    resizable=no, 
-    copyhistory=no, 
-    width=${popupWidth}, 
-    height=${popupHeight}, 
-    top=${top}, 
-    left=${left}`
-  );
+  if (window.chrome && window.chrome.storage) {
+    window.chrome.storage.local.get(storageKey, (items) => {
+      if (items[storageKey]) {
+        const url = chrome.runtime.getURL(
+          `formsPopup.html?shortcut=${encodeURIComponent(shortcut)}`
+        );
+        const popupWidth = 400;
+        const popupHeight = 600;
+        const left = window.innerWidth / 2 - popupWidth / 2;
+        const top = window.innerHeight / 2 - popupHeight / 2;
+
+        window.open(
+          url,
+          "_blank",
+          `toolbar=no, 
+          location=no, 
+          directories=no, 
+          status=no, 
+          menubar=no, 
+          scrollbars=no, 
+          resizable=no, 
+          copyhistory=no, 
+          width=${popupWidth}, 
+          height=${popupHeight}, 
+          top=${top}, 
+          left=${left}`
+        );
+      } else {
+        console.log("No form found for the given shortcut.");
+      }
+    });
+  } else {
+    console.warn("window.chrome.storage.local is not available.");
+  }
 }
-
 
 document.addEventListener("input", handleInputEvent);
 document.addEventListener("input", showSuggestions);
