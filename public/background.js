@@ -61,3 +61,13 @@ chrome.omnibox.onInputEntered.addListener((text, disposition) => {
     }
   });
 });
+
+chrome.runtime.onConnect.addListener((port) => {
+  port.onMessage.addListener((message) => {
+    if (message.action === 'insertFormData') {
+      chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+        chrome.tabs.sendMessage(tabs[0].id, { action: 'insertFormData', data: message.data });
+      });
+    }
+  });
+});

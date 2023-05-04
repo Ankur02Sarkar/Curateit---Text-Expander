@@ -28,3 +28,10 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 });
+
+// ...
+document.getElementById("insert-btn").addEventListener("click", () => {
+  const formData = document.getElementById("passed-shortcut").value;
+  const port = chrome.runtime.connect({ name: "popupToContent" });
+  port.postMessage({ action: "insertFormData", data: formData });
+});

@@ -14,18 +14,44 @@ injectStyles(`
     background-color: white;
     color: black;
     border: 1px solid #ccc;
-    font-family: Arial, sans-serif;
+    font-family: "Segoe UI", Arial, sans-serif;
     box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    max-height: 170px;
+    overflow: auto;
+    display: !grid;
+    gap: 10px;
+    border-radius: 5px;
   }
 
   .suggestion-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     cursor: pointer;
     padding: 2px 4px;
+    height: 100%;
+    border-bottom: 1px solid #ccc;
+    font-size: 0.9em;
+  }
+
+  .suggestion-item:last-child {
+    border-bottom: none;
   }
 
   .suggestion-item:hover {
-    background-color: #eee;
+    background-color: #f0f0f0;
   }
+
+  .delete-icon {
+    width: 16px;
+    height: 16px;
+    background-image: url('https://img.icons8.com/?size=512&id=99961&format=png');
+    background-size: cover;
+    border: none;
+    cursor: pointer;
+    outline: none;
+  }
+
 `);
 
 function fetchExpansions(callback) {
@@ -108,6 +134,12 @@ function handleInputEvent(event) {
 
     handleSite(target, originalText, expandedText);
   });
+}
+function truncateText(text, maxLength) {
+  if (text.length > maxLength) {
+    return text.substring(0, maxLength) + "...";
+  }
+  return text;
 }
 
 function createSuggestionBox() {
@@ -195,10 +227,34 @@ function showSuggestions(event) {
       }px`;
     }
 
+    // ...
+
+    // Update the suggestion-item template to include a delete button
     suggestionBox.innerHTML = suggestions
-      .map((suggestion) => `<div class="suggestion-item">${suggestion}</div>`)
+      .map((suggestion) => {
+        const truncatedExpansion = truncateText(expansions[suggestion], 30);
+        return `<div class="suggestion-item">
+        <div>
+          <div>${suggestion}</div>
+          <div style="font-size: 0.8em; color: #777;">${truncatedExpansion}</div>
+        </div>
+          <button class="delete-suggestion delete-icon" data-key="${suggestion}"></button>
+        </div>`;
+      })
       .join("");
 
+    // Add a function to remove the expansion from the storage
+    function removeExpansion(key) {
+      if (window.chrome && window.chrome.storage) {
+        window.chrome.storage.local.remove(key, () => {
+          console.log(`Removed expansion: ${key}`);
+        });
+      } else {
+        console.warn("window.chrome.storage.local is not available.");
+      }
+    }
+
+    // Update the suggestionBox.onclick function to ignore clicks on the delete button
     suggestionBox.onclick = (e) => {
       if (e.target.classList.contains("suggestion-item")) {
         const selectedExpansion = e.target.textContent;
@@ -223,8 +279,15 @@ function showSuggestions(event) {
           );
         }
         suggestionBox.style.display = "none";
+      } else if (e.target.classList.contains("delete-suggestion")) {
+        e.stopPropagation(); // Prevent triggering the suggestion-item click event
+        const key = e.target.dataset.key;
+        removeExpansion(STORAGE_TEXT_PREFIX + key);
+        e.target.parentElement.style.display = "none";
       }
     };
+
+    // ...
   });
 }
 
@@ -310,3 +373,11 @@ document.addEventListener("click", (event) => {
     suggestionBox.style.display = "none";
   }
 });
+
+function handleMessage(request, sender, sendResponse) {
+  if (request.action === "insertFormData") {
+    console.log(request.data);
+  }
+}
+
+chrome.runtime.onMessage.addListener(handleMessage);
