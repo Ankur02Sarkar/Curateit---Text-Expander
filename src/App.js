@@ -1,11 +1,17 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { AiOutlineEdit, AiOutlineDelete } from "react-icons/ai";
 import { TbUnlink, TbTextRecognition, TbForms } from "react-icons/tb";
 import { CiTextAlignCenter } from "react-icons/ci";
+import { Configuration, OpenAIApi } from "openai";
 import "./App.css";
 const STORAGE_LINKS_PREFIX = "curateit_links_";
 const STORAGE_TEXT_PREFIX = "curateit_text_";
 const STORAGE_FORM_PREFIX = "curateit_form_";
+
+const configuration = new Configuration({
+  apiKey: "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",
+});
+const openai = new OpenAIApi(configuration);
 
 function App() {
   const [text, setText] = useState("");
@@ -24,6 +30,31 @@ function App() {
   const [editingFormKey, setEditingFormKey] = useState(null);
   const [filteredForms, setFilteredForms] = useState([]);
   const [formQuery, setFormQuery] = useState("");
+  const [citationResult, setCitationResult] = useState("");
+  const [citeUrl, setCiteUrl] = useState("");
+
+  const citationStyleRef = useRef();
+  const handleCiteButtonClick = async () => {
+    const selectedStyle = citationStyleRef.current.value;
+
+    try {
+      const completion = await openai.createChatCompletion({
+        model: "gpt-3.5-turbo",
+        messages: [
+          {
+            role: "user",
+            content: `Today is 7th May 2023. Write me a ${selectedStyle} style citation for ${citeUrl}. Your answer should strictly follow a JSON format having the fields :- title, url, description, author, accessed date, credibility(high/low/medium), citation, citation format`,
+          },
+        ],
+      });
+
+      const result = completion.data.choices[0].message.content.trim();
+      setCitationResult(result);
+    } catch (error) {
+      console.error(error);
+      setCitationResult("Error: Failed to get a response");
+    }
+  };
 
   useEffect(() => {
     fetchExpansions();
@@ -509,11 +540,25 @@ function App() {
           <div className="saveCitations">
             <label htmlFor="">Cite an URL</label>
             <div>
-              <input type="url" placeholder="Enter URL" />
-              <button type="button" style={{ marginLeft: "0px" }}>
+              <input
+                type="url"
+                placeholder="Enter URL"
+                onChange={(e) => setCiteUrl(e.target.value)}
+              />
+              <select ref={citationStyleRef}>
+                <option value="Harvard">Harvard</option>
+                <option value="IEEE">IEEE</option>
+                <option value="APA">APA</option>
+              </select>
+              <button
+                type="button"
+                onClick={handleCiteButtonClick}
+                style={{ marginLeft: "0px" }}
+              >
                 Cite
               </button>
             </div>
+            <div className="citation-result">{citationResult}</div>
           </div>
         )}
       </main>
