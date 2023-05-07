@@ -366,6 +366,26 @@ function openFormsPopup(val) {
   }
 }
 
+// function openFormsPopup(val) {
+//   const shortcut = ":" + val;
+//   const storageKey = STORAGE_FORM_PREFIX + shortcut;
+
+//   if (window.chrome && window.chrome.storage) {
+//     window.chrome.storage.local.get(storageKey, (items) => {
+//       if (items[storageKey]) {
+//         const url = chrome.runtime.getURL(
+//           `formsPopup.html?shortcut=${encodeURIComponent(shortcut)}`
+//         );
+//         createIframeOverlay(url); // Use the createIframeOverlay function instead of window.open
+//       } else {
+//         console.log("No form found for the given shortcut.");
+//       }
+//     });
+//   } else {
+//     console.warn("window.chrome.storage.local is not available.");
+//   }
+// }
+
 document.addEventListener("input", handleInputEvent);
 document.addEventListener("input", showSuggestions);
 document.addEventListener("click", (event) => {
@@ -381,3 +401,10 @@ function handleMessage(request, sender, sendResponse) {
 }
 
 chrome.runtime.onMessage.addListener(handleMessage);
+
+window.addEventListener("message", (event) => {
+  if (event.data.action === "insertFormData") {
+    const formData = event.data.data;
+    console.log("data recieved to content -- ", formData);
+  }
+});

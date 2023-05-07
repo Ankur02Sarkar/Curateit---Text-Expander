@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { AiOutlineEdit } from "react-icons/ai";
-import { AiOutlineDelete } from "react-icons/ai";
+import { AiOutlineEdit, AiOutlineDelete } from "react-icons/ai";
+import { TbUnlink, TbTextRecognition, TbForms } from "react-icons/tb";
+import { CiTextAlignCenter } from "react-icons/ci";
 import "./App.css";
 const STORAGE_LINKS_PREFIX = "curateit_links_";
 const STORAGE_TEXT_PREFIX = "curateit_text_";
@@ -122,7 +123,9 @@ function App() {
   const handleFormBtnClick = () => {
     setDisplayDiv("saveForms");
   };
-
+  const handleCitationBtnClick = () => {
+    setDisplayDiv("saveCitations");
+  };
   const saveShortcut = (event) => {
     event.preventDefault();
     if (window.chrome && window.chrome.storage && window.chrome.storage.local) {
@@ -264,6 +267,11 @@ function App() {
     fetchShortcuts();
   }, []);
 
+  const openPopup = () => {
+    const popupUrl =
+      "chrome-extension://pmkaanjncdpcijofnpfpabfkjfnpnmnb/shortcutPopup.html";
+    window.open(popupUrl, "shortcutPopup", "width=400,height=300");
+  };
   return (
     <>
       <main id="todolist">
@@ -272,15 +280,25 @@ function App() {
           <span>Build your personal corner on the web</span>
         </h1>
         <div className="btn-wrapper">
-          <button className="linkBtn" onClick={handleLinkBtnClick}>
-            Save Links
-          </button>
-          <button className="textBtn" onClick={handleTextBtnClick}>
-            Save Texts
-          </button>
-          <button className="formBtn" onClick={handleFormBtnClick}>
-            Save Forms
-          </button>
+          <TbUnlink
+            className="btnLink"
+            onClick={handleLinkBtnClick}
+            size={72}
+          />
+
+          <TbTextRecognition
+            className="btnText"
+            onClick={handleTextBtnClick}
+            size={72}
+            data-tooltip="Text Recognition"
+          />
+
+          <TbForms className="btnForm" onClick={handleFormBtnClick} size={72} />
+          <CiTextAlignCenter
+            className="btnCitation"
+            onClick={handleCitationBtnClick}
+            size={72}
+          />
         </div>
         {displayDiv === "saveLinks" && (
           <div className="saveLinks">
@@ -332,6 +350,7 @@ function App() {
         )}
         {displayDiv === "saveText" && (
           <div className="saveText">
+            <label htmlFor="">Save Your Text</label>
             <div
               style={{ display: "flex", flexDirection: "column", gap: "7px" }}
             >
@@ -361,12 +380,6 @@ function App() {
                     padding: "12px",
                   }}
                 />
-                {/* <div>
-                  <button className="bold">B</button>
-                  <button className="italic">I</button>
-                  <button className="textColor">A</button>
-                  <button className="highlight">H</button>
-                </div> */}
               </div>
               <button
                 type="button"
@@ -418,6 +431,7 @@ function App() {
         )}
         {displayDiv === "saveForms" && (
           <div className="saveForms">
+            <label htmlFor="">Save Your Forms</label>
             <input
               type="text"
               placeholder="Search forms..."
@@ -489,6 +503,17 @@ function App() {
                 </li>
               ))}
             </ul>
+          </div>
+        )}
+        {displayDiv === "saveCitations" && (
+          <div className="saveCitations">
+            <label htmlFor="">Cite an URL</label>
+            <div>
+              <input type="url" placeholder="Enter URL" />
+              <button type="button" style={{ marginLeft: "0px" }}>
+                Cite
+              </button>
+            </div>
           </div>
         )}
       </main>

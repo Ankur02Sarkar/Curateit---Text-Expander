@@ -245,3 +245,53 @@ button {
   background-color: #ff5159;
   color: white;
 }
+
+.btn-wrapper {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  justify-items: center;
+  margin: 20px auto;
+  ;
+}
+
+.btnLink,
+.btnText,
+.btnForm,
+.btnCitation {
+  border: 1px solid rgba(255, 255, 255, .3);
+  background-color: #ff5159;
+  padding: 12px;
+  cursor: pointer;
+  border-radius: 50%;
+}
+
+.btnForm:hover,
+.btnText:hover,
+.btnForm:hover,
+.btnCitation:hover {
+  background-color: #FF6666;
+}
+
+label {
+  min-width: 100%;
+  margin-bottom: 0.5rem;
+  font-size: 1.3rem;
+}
+
+.saveText,
+.saveForms {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.saveCitations {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.saveCitations>div {
+  display: flex;
+  gap: 10px;
+}
