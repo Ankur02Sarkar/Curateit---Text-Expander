@@ -9,7 +9,8 @@ const STORAGE_TEXT_PREFIX = "curateit_text_";
 const STORAGE_FORM_PREFIX = "curateit_form_";
 
 const configuration = new Configuration({
-  apiKey: "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",
+  apiKey: process.env.REACT_APP_OPENAI_API_KEY,
+  // apiKey: "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",
 });
 const openai = new OpenAIApi(configuration);
 
@@ -313,6 +314,7 @@ function App() {
         <div className="btn-wrapper">
           <TbUnlink
             className="btnLink"
+            aria-label="Link"
             onClick={handleLinkBtnClick}
             size={72}
           />
@@ -558,6 +560,124 @@ function App() {
                 Cite
               </button>
             </div>
+            <ul>
+              <li style={{ flexDirection: "column" }}>
+                <div className="labelWrapper">
+                  <div className="listItem">
+                    <span className="listData">Title : </span>
+                    <span className="listData">Kolkata </span>
+                  </div>
+                  <div className="listItem">
+                    <span className="listData">Url : </span>
+                    <span className="listData">
+                      https://www.wikipedia.org/wiki/Kolkata
+                    </span>
+                  </div>
+                  <div className="listItem">
+                    <span className="listData">Desc : </span>
+                    <span className="listData">
+                      Lorem ipsum dolor mit. Lorem ipsum
+                    </span>
+                  </div>
+                  <div className="listItem">
+                    <span className="listData">Author : </span>
+                    <span className="listData">Idk Bruh </span>
+                  </div>
+                  <div className="listItem">
+                    <span className="listData">Date : </span>
+                    <span className="listData">2023-05-05 </span>
+                  </div>
+                  <div className="listItem">
+                    <span className="listData">Credibility : </span>
+                    <span className="listData">Medium </span>
+                  </div>
+                  <div className="listItem">
+                    <span className="listData">Citation : </span>
+                    <span className="listData">Lorem ipsum dolor mit.</span>
+                  </div>
+                  <div className="listItem">
+                    <span className="listData">Format : </span>
+                    <span className="listData">Harvard </span>
+                  </div>
+                </div>
+                <div className="actions">
+                  <button
+                    type="button"
+                    aria-label="Edit"
+                    title="Edit"
+                    className="btn-picto"
+                  >
+                    <AiOutlineEdit className="edit-btn" size={32} />
+                  </button>
+                  <button
+                    type="button"
+                    aria-label="Delete"
+                    title="Delete"
+                    className="btn-picto"
+                  >
+                    <AiOutlineDelete className="delete-btn" size={32} />
+                  </button>
+                </div>
+              </li>
+              <li style={{ flexDirection: "column" }}>
+                <div className="labelWrapper">
+                  <div className="listItem">
+                    <span className="listData">Title : </span>
+                    <span className="listData">Kolkata </span>
+                  </div>
+                  <div className="listItem">
+                    <span className="listData">Url : </span>
+                    <span className="listData">
+                      https://www.wikipedia.org/wiki/Kolkata
+                    </span>
+                  </div>
+                  <div className="listItem">
+                    <span className="listData">Desc : </span>
+                    <span className="listData">
+                      Lorem ipsum dolor mit. Lorem ipsum
+                    </span>
+                  </div>
+                  <div className="listItem">
+                    <span className="listData">Author : </span>
+                    <span className="listData">Idk Bruh </span>
+                  </div>
+                  <div className="listItem">
+                    <span className="listData">Date : </span>
+                    <span className="listData">2023-05-05 </span>
+                  </div>
+                  <div className="listItem">
+                    <span className="listData">Credibility : </span>
+                    <span className="listData">Medium </span>
+                  </div>
+                  <div className="listItem">
+                    <span className="listData">Citation : </span>
+                    <span className="listData">Lorem ipsum dolor mit.</span>
+                  </div>
+                  <div className="listItem">
+                    <span className="listData">Format : </span>
+                    <span className="listData">Harvard </span>
+                  </div>
+                </div>
+                <div className="actions">
+                  <button
+                    type="button"
+                    aria-label="Edit"
+                    title="Edit"
+                    className="btn-picto"
+                  >
+                    <AiOutlineEdit className="edit-btn" size={32} />
+                  </button>
+                  <button
+                    type="button"
+                    aria-label="Delete"
+                    title="Delete"
+                    className="btn-picto"
+                  >
+                    <AiOutlineDelete className="delete-btn" size={32} />
+                  </button>
+                </div>
+              </li>
+            </ul>
             <div className="citation-result">{citationResult}</div>
           </div>
         )}

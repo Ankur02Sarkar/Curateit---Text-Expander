@@ -295,3 +295,7 @@ label {
   display: flex;
   gap: 10px;
 }
+
+.listItem {
+  display: flex;
+}
