@@ -260,7 +260,7 @@ button {
 .btnCitation {
   border: 1px solid rgba(255, 255, 255, .3);
   background-color: #ff5159;
-  padding: 12px;
+  padding: 3px;
   cursor: pointer;
   border-radius: 50%;
 }

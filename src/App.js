@@ -7,10 +7,11 @@ import "./App.css";
 const STORAGE_LINKS_PREFIX = "curateit_links_";
 const STORAGE_TEXT_PREFIX = "curateit_text_";
 const STORAGE_FORM_PREFIX = "curateit_form_";
+const STORAGE_CITATION_PREFIX = "curateit_citation_";
 
 const configuration = new Configuration({
-  apiKey: process.env.REACT_APP_OPENAI_API_KEY,
-  // apiKey: "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",
+  // apiKey: process.env.REACT_APP_OPENAI_API_KEY,
+  apiKey: "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",
 });
 const openai = new OpenAIApi(configuration);
 
@@ -33,8 +34,21 @@ function App() {
   const [formQuery, setFormQuery] = useState("");
   const [citationResult, setCitationResult] = useState("");
   const [citeUrl, setCiteUrl] = useState("");
+  const [citationData, setCitationData] = useState(null);
+  const [citations, setCitations] = useState([]);
+  const [citeRes, setCiteRes] = useState([]);
 
   const citationStyleRef = useRef();
+  const saveCitationData = (citationData) => {
+    if (window.chrome && window.chrome.storage && window.chrome.storage.local) {
+      const key = STORAGE_CITATION_PREFIX + Date.now();
+      window.chrome.storage.local.set({ [key]: citationData }, () => {
+        fetchCitations();
+      });
+    } else {
+      console.warn("Chrome storage API not available.");
+    }
+  };
   const handleCiteButtonClick = async () => {
     const selectedStyle = citationStyleRef.current.value;
 
@@ -44,18 +58,35 @@ function App() {
         messages: [
           {
             role: "user",
-            content: `Today is 7th May 2023. Write me a ${selectedStyle} style citation for ${citeUrl}. Your answer should strictly follow a JSON format having the fields :- title, url, description, author, accessed date, credibility(high/low/medium), citation, citation format`,
+            content: `Today is 7th May 2023. Write me a ${selectedStyle} style citation for ${citeUrl}. Your answer should strictly follow a JSON format having the fields :- title, url, description, author, accessed_date, credibility(high/low/medium), citation, citation_format`,
           },
         ],
       });
 
       const result = completion.data.choices[0].message.content.trim();
-      setCitationResult(result);
+      setCiteRes(result);
+      const parsedResult = JSON.parse(result);
+      setCitationData(parsedResult);
     } catch (error) {
       console.error(error);
       setCitationResult("Error: Failed to get a response");
     }
   };
+  const fetchCitations = () => {
+    if (window.chrome && window.chrome.storage && window.chrome.storage.local) {
+      window.chrome.storage.local.get(null, (items) => {
+        const fetchedCitations = Object.entries(items).filter(([key]) =>
+          key.startsWith(STORAGE_CITATION_PREFIX)
+        );
+        setCitations(fetchedCitations);
+      });
+    } else {
+      console.warn("Chrome storage API not available.");
+    }
+  };
+  useEffect(() => {
+    fetchCitations();
+  }, []);
 
   useEffect(() => {
     fetchExpansions();
@@ -316,21 +347,21 @@ function App() {
             className="btnLink"
             aria-label="Link"
             onClick={handleLinkBtnClick}
-            size={72}
+            size={37}
           />
 
           <TbTextRecognition
             className="btnText"
             onClick={handleTextBtnClick}
-            size={72}
+            size={37}
             data-tooltip="Text Recognition"
           />
 
-          <TbForms className="btnForm" onClick={handleFormBtnClick} size={72} />
+          <TbForms className="btnForm" onClick={handleFormBtnClick} size={37} />
           <CiTextAlignCenter
             className="btnCitation"
             onClick={handleCitationBtnClick}
-            size={72}
+            size={37}
           />
         </div>
         {displayDiv === "saveLinks" && (
@@ -471,7 +502,6 @@ function App() {
               value={formQuery}
               onChange={(e) => setFormQuery(e.target.value)}
             />
-
             <input
               type="text"
               placeholder="Form Title"
@@ -561,124 +591,55 @@ function App() {
               </button>
             </div>
             <ul>
-              <li style={{ flexDirection: "column" }}>
-                <div className="labelWrapper">
-                  <div className="listItem">
-                    <span className="listData">Title : </span>
-                    <span className="listData">Kolkata </span>
+              {citationData && (
+                <li style={{ flexDirection: "column" }}>
+                  <div className="labelWrapper">
+                    <div className="listItem">
+                      <span className="listData">Title : </span>
+                      <span className="listData">{citationData.title}</span>
+                    </div>
+                    <div className="listItem">
+                      <span className="listData">Url : </span>
+                      <span className="listData">{citationData.url}</span>
+                    </div>
+                    <div className="listItem">
+                      <span className="listData">Desc : </span>
+                      <span className="listData">
+                        {citationData.description}
+                      </span>
+                    </div>
+                    <div className="listItem">
+                      <span className="listData">Author : </span>
+                      <span className="listData">{citationData.author}</span>
+                    </div>
+                    <div className="listItem">
+                      <span className="listData">Date : </span>
+                      <span className="listData">
+                        {citationData.accessed_date}
+                      </span>
+                    </div>
+                    <div className="listItem">
+                      <span className="listData">Credibility : </span>
+                      <span className="listData">
+                        {citationData.credibility}
+                      </span>
+                    </div>
+                    <div className="listItem">
+                      <span className="listData">Citation : </span>
+                      <span className="listData">{citationData.citation}</span>
+                    </div>
+                    <div className="listItem">
+                      <span className="listData">Format : </span>
+                      <span className="listData">
+                        {citationData.citation_format}
+                      </span>
+                    </div>
                   </div>
-                  <div className="listItem">
-                    <span className="listData">Url : </span>
-                    <span className="listData">
-                      https://www.wikipedia.org/wiki/Kolkata
-                    </span>
-                  </div>
-                  <div className="listItem">
-                    <span className="listData">Desc : </span>
-                    <span className="listData">
-                      Lorem ipsum dolor mit. Lorem ipsum
-                    </span>
-                  </div>
-                  <div className="listItem">
-                    <span className="listData">Author : </span>
-                    <span className="listData">Idk Bruh </span>
-                  </div>
-                  <div className="listItem">
-                    <span className="listData">Date : </span>
-                    <span className="listData">2023-05-05 </span>
-                  </div>
-                  <div className="listItem">
-                    <span className="listData">Credibility : </span>
-                    <span className="listData">Medium </span>
-                  </div>
-                  <div className="listItem">
-                    <span className="listData">Citation : </span>
-                    <span className="listData">Lorem ipsum dolor mit.</span>
-                  </div>
-                  <div className="listItem">
-                    <span className="listData">Format : </span>
-                    <span className="listData">Harvard </span>
-                  </div>
-                </div>
-                <div className="actions">
-                  <button
-                    type="button"
-                    aria-label="Edit"
-                    title="Edit"
-                    className="btn-picto"
-                  >
-                    <AiOutlineEdit className="edit-btn" size={32} />
-                  </button>
-                  <button
-                    type="button"
-                    aria-label="Delete"
-                    title="Delete"
-                    className="btn-picto"
-                  >
-                    <AiOutlineDelete className="delete-btn" size={32} />
-                  </button>
-                </div>
-              </li>
-              <li style={{ flexDirection: "column" }}>
-                <div className="labelWrapper">
-                  <div className="listItem">
-                    <span className="listData">Title : </span>
-                    <span className="listData">Kolkata </span>
-                  </div>
-                  <div className="listItem">
-                    <span className="listData">Url : </span>
-                    <span className="listData">
-                      https://www.wikipedia.org/wiki/Kolkata
-                    </span>
-                  </div>
-                  <div className="listItem">
-                    <span className="listData">Desc : </span>
-                    <span className="listData">
-                      Lorem ipsum dolor mit. Lorem ipsum
-                    </span>
-                  </div>
-                  <div className="listItem">
-                    <span className="listData">Author : </span>
-                    <span className="listData">Idk Bruh </span>
-                  </div>
-                  <div className="listItem">
-                    <span className="listData">Date : </span>
-                    <span className="listData">2023-05-05 </span>
-                  </div>
-                  <div className="listItem">
-                    <span className="listData">Credibility : </span>
-                    <span className="listData">Medium </span>
-                  </div>
-                  <div className="listItem">
-                    <span className="listData">Citation : </span>
-                    <span className="listData">Lorem ipsum dolor mit.</span>
-                  </div>
-                  <div className="listItem">
-                    <span className="listData">Format : </span>
-                    <span className="listData">Harvard </span>
-                  </div>
-                </div>
-                <div className="actions">
-                  <button
-                    type="button"
-                    aria-label="Edit"
-                    title="Edit"
-                    className="btn-picto"
-                  >
-                    <AiOutlineEdit className="edit-btn" size={32} />
-                  </button>
-                  <button
-                    type="button"
-                    aria-label="Delete"
-                    title="Delete"
-                    className="btn-picto"
-                  >
-                    <AiOutlineDelete className="delete-btn" size={32} />
-                  </button>
-                </div>
-              </li>
+                  {/* ... */}
+                </li>
+              )}
             </ul>
-            <div className="citation-result">{citationResult}</div>
+            {/* <div className="citation-result">{citeRes}</div> */}
           </div>
         )}
       </main>
