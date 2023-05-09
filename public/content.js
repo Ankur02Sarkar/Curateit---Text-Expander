@@ -1,6 +1,9 @@
 const STORAGE_TEXT_PREFIX = "curateit_text_";
 const STORAGE_FORM_PREFIX = "curateit_form_";
 
+let currTargetForms = null;
+let orgTextForm = null;
+
 function injectStyles(css) {
   const style = document.createElement("style");
   style.textContent = css;
@@ -118,8 +121,9 @@ function handleSite(target, originalText, expandedText) {
 
 function handleInputEvent(event) {
   const target = event.target;
+  console.log("Target is : ", target);
   const tagName = target.tagName.toLowerCase();
-
+  console.log("tag Name is : ", tagName);
   if (
     tagName !== "input" &&
     tagName !== "textarea" &&
@@ -131,7 +135,6 @@ function handleInputEvent(event) {
   fetchExpansions((expansions) => {
     const originalText = target.value || target.textContent;
     const expandedText = expandText(originalText, expansions);
-
     handleSite(target, originalText, expandedText);
   });
 }
@@ -194,9 +197,12 @@ function showSuggestions(event) {
     const match = textBeforeCursor.match(formsTriggerPattern);
 
     if (match) {
-      openFormsPopup(match[1]);
+      currTargetForms = target;
+      orgTextForm = currTargetForms.value || currTargetForms.textContent;
+      openFormsPopup(match[1], orgTextForm);
       return;
     }
+
     const typedText = textBeforeCursor.substring(lastColonIndex + 1);
     const suggestions = Object.keys(expansions).filter((key) =>
       key.startsWith(`:${typedText}`)
@@ -226,8 +232,6 @@ function showSuggestions(event) {
         rangeRect.top + rangeRect.height + scrollTop
       }px`;
     }
-
-    // ...
 
     // Update the suggestion-item template to include a delete button
     suggestionBox.innerHTML = suggestions
@@ -326,46 +330,6 @@ function createIframeOverlay(url) {
 //   createIframeOverlay(url);
 // }
 
-function openFormsPopup(val) {
-  const shortcut = ":" + val;
-  const storageKey = STORAGE_FORM_PREFIX + shortcut;
-
-  if (window.chrome && window.chrome.storage) {
-    window.chrome.storage.local.get(storageKey, (items) => {
-      if (items[storageKey]) {
-        const url = chrome.runtime.getURL(
-          `formsPopup.html?shortcut=${encodeURIComponent(shortcut)}`
-        );
-        const popupWidth = 400;
-        const popupHeight = 600;
-        const left = window.innerWidth / 2 - popupWidth / 2;
-        const top = window.innerHeight / 2 - popupHeight / 2;
-
-        window.open(
-          url,
-          "_blank",
-          `toolbar=no, 
-          location=no, 
-          directories=no, 
-          status=no, 
-          menubar=no, 
-          scrollbars=no, 
-          resizable=no, 
-          copyhistory=no, 
-          width=${popupWidth}, 
-          height=${popupHeight}, 
-          top=${top}, 
-          left=${left}`
-        );
-      } else {
-        console.log("No form found for the given shortcut.");
-      }
-    });
-  } else {
-    console.warn("window.chrome.storage.local is not available.");
-  }
-}
-
 // function openFormsPopup(val) {
 //   const shortcut = ":" + val;
 //   const storageKey = STORAGE_FORM_PREFIX + shortcut;
@@ -376,7 +340,27 @@ function openFormsPopup(val) {
 //         const url = chrome.runtime.getURL(
 //           `formsPopup.html?shortcut=${encodeURIComponent(shortcut)}`
 //         );
-//         createIframeOverlay(url); // Use the createIframeOverlay function instead of window.open
+//         const popupWidth = 400;
+//         const popupHeight = 600;
+//         const left = window.innerWidth / 2 - popupWidth / 2;
+//         const top = window.innerHeight / 2 - popupHeight / 2;
+
+//         window.open(
+//           url,
+//           "_blank",
+//           `toolbar=no,
+//           location=no,
+//           directories=no,
+//           status=no,
+//           menubar=no,
+//           scrollbars=no,
+//           resizable=no,
+//           copyhistory=no,
+//           width=${popupWidth},
+//           height=${popupHeight},
+//           top=${top},
+//           left=${left}`
+//         );
 //       } else {
 //         console.log("No form found for the given shortcut.");
 //       }
@@ -385,6 +369,28 @@ function openFormsPopup(val) {
 //     console.warn("window.chrome.storage.local is not available.");
 //   }
 // }
+
+function openFormsPopup(val, currTargetForms, orgTextForm) {
+  const shortcut = ":" + val;
+  const storageKey = STORAGE_FORM_PREFIX + shortcut;
+
+  if (window.chrome && window.chrome.storage) {
+    window.chrome.storage.local.get(storageKey, (items) => {
+      if (items[storageKey]) {
+        const url = chrome.runtime.getURL(
+          `formsPopup.html?shortcut=${encodeURIComponent(
+            shortcut
+          )}&orgTextForm=${encodeURIComponent(orgTextForm)}`
+        );
+        createIframeOverlay(url); // Use the createIframeOverlay function instead of window.open
+      } else {
+        console.log("No form found for the given shortcut.");
+      }
+    });
+  } else {
+    console.warn("window.chrome.storage.local is not available.");
+  }
+}
 
 document.addEventListener("input", handleInputEvent);
 document.addEventListener("input", showSuggestions);
@@ -405,6 +411,11 @@ chrome.runtime.onMessage.addListener(handleMessage);
 window.addEventListener("message", (event) => {
   if (event.data.action === "insertFormData") {
     const formData = event.data.data;
-    console.log("data recieved to content -- ", formData);
+    // console.log("data recieved to content -- ", formData);
+    // function handleSite(target, originalText, expandedText) {
+    console.log("in msg listner : target : ", currTargetForms);
+    console.log("in msg listner : orgText : ", orgTextForm);
+    console.log("in msg listner : expText : ", formData);
+    handleSite(currTargetForms, orgTextForm, formData);
   }
 });

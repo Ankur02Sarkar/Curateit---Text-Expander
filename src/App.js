@@ -37,7 +37,7 @@ function App() {
   const [citationData, setCitationData] = useState(null);
   const [citations, setCitations] = useState([]);
   const [citeRes, setCiteRes] = useState([]);
-
+  const [loading, setLoading] = useState(false);
   const citationStyleRef = useRef();
   const saveCitationData = (citationData) => {
     if (window.chrome && window.chrome.storage && window.chrome.storage.local) {
@@ -50,6 +50,7 @@ function App() {
     }
   };
   const handleCiteButtonClick = async () => {
+    setLoading(true);
     const selectedStyle = citationStyleRef.current.value;
 
     try {
@@ -67,6 +68,7 @@ function App() {
       setCiteRes(result);
       const parsedResult = JSON.parse(result);
       setCitationData(parsedResult);
+      setLoading(false);
     } catch (error) {
       console.error(error);
       setCitationResult("Error: Failed to get a response");
@@ -590,7 +592,9 @@ function App() {
                 Cite
               </button>
             </div>
+
             <ul>
+              {loading && <h2>Loading...</h2>}
               {citationData && (
                 <li style={{ flexDirection: "column" }}>
                   <div className="labelWrapper">
