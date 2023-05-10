@@ -6,6 +6,10 @@ document.addEventListener("DOMContentLoaded", () => {
   if (shortcut) {
     const passedShortcut = document.getElementById("passed-shortcut");
     const titleDiv = document.getElementById("form-popup-div");
+    const inputField = document.getElementById("input-value");
+    const saveButton = document.getElementById("save-btn"); // Use id instead of class
+
+    let templateText = ""; // Store original template text
 
     // Fetch the form data associated with the shortcut from Chrome storage
     if (window.chrome && window.chrome.storage && window.chrome.storage.local) {
@@ -19,6 +23,7 @@ document.addEventListener("DOMContentLoaded", () => {
           // Display the form data in the passedShortcut element
           titleDiv.innerHTML = `Form Data for <span class="formsSpan"> ${shortcut} </span>`;
           passedShortcut.value = `${formData}`;
+          templateText = formData; // Store the original template text
         } else {
           passedShortcut.value = `No form data found for shortcut: ${shortcut}`;
         }
@@ -29,6 +34,13 @@ document.addEventListener("DOMContentLoaded", () => {
       console.warn("Chrome storage API not available.");
       loader.style.display = "none"; // Hide loader when data is loaded
     }
+
+    // Update text area value when user clicks Save button
+    saveButton.addEventListener("click", () => {
+      const inputValue = inputField.value;
+      const replacedData = templateText.replaceAll("{*}", inputValue);
+      passedShortcut.value = replacedData;
+    });
   }
 });
 
