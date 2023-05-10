@@ -1,4 +1,5 @@
 document.addEventListener("DOMContentLoaded", () => {
+  const loader = document.getElementById("loader");
   const urlParams = new URLSearchParams(window.location.search);
   const shortcut = urlParams.get("shortcut");
 
@@ -16,15 +17,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if (formData) {
           // Display the form data in the passedShortcut element
-          titleDiv.textContent = `Form Data for ${shortcut}:`;
+          titleDiv.innerHTML = `Form Data for <span class="formsSpan"> ${shortcut} </span>`;
           passedShortcut.value = `${formData}`;
         } else {
           passedShortcut.value = `No form data found for shortcut: ${shortcut}`;
         }
+        loader.style.display = "none"; // Hide loader when data is loaded
       });
     } else {
       passedShortcut.value = "Chrome storage API not available.";
       console.warn("Chrome storage API not available.");
+      loader.style.display = "none"; // Hide loader when data is loaded
     }
   }
 });
@@ -39,4 +42,7 @@ document.getElementById("insert-btn").addEventListener("click", () => {
     "*"
   );
   console.log("sent from popup - ", formData);
+
+  // Post a 'close' event to the parent window
+  window.parent.postMessage({ action: "close" }, "*");
 });

@@ -295,6 +295,36 @@ function showSuggestions(event) {
   });
 }
 
+// function createIframeOverlay(url) {
+//   const overlay = document.createElement("div");
+//   overlay.style.position = "fixed";
+//   overlay.style.top = "0";
+//   overlay.style.left = "0";
+//   overlay.style.width = "100%";
+//   overlay.style.height = "100%";
+//   overlay.style.backgroundColor = "rgba(0, 0, 0, 0.5)";
+//   overlay.style.zIndex = "9999999";
+
+//   const iframe = document.createElement("iframe");
+//   iframe.src = url;
+//   iframe.style.border = "none";
+//   iframe.style.width = "400px";
+//   iframe.style.height = "600px";
+//   iframe.style.position = "absolute";
+//   iframe.style.left = "50%";
+//   iframe.style.top = "50%";
+//   iframe.style.transform = "translate(-50%, -50%)";
+
+//   overlay.appendChild(iframe);
+//   document.body.appendChild(overlay);
+
+//   overlay.addEventListener("click", (e) => {
+//     if (e.target === overlay) {
+//       document.body.removeChild(overlay);
+//     }
+//   });
+// }
+
 function createIframeOverlay(url) {
   const overlay = document.createElement("div");
   overlay.style.position = "fixed";
@@ -304,6 +334,13 @@ function createIframeOverlay(url) {
   overlay.style.height = "100%";
   overlay.style.backgroundColor = "rgba(0, 0, 0, 0.5)";
   overlay.style.zIndex = "9999999";
+  overlay.id = "overlay"; // Set an id for later reference
+
+  // Create a loader
+  const loader = document.createElement("div");
+  loader.id = "loader";
+  loader.className = "loader";
+  overlay.appendChild(loader);
 
   const iframe = document.createElement("iframe");
   iframe.src = url;
@@ -315,6 +352,10 @@ function createIframeOverlay(url) {
   iframe.style.top = "50%";
   iframe.style.transform = "translate(-50%, -50%)";
 
+  iframe.onload = function () {
+    document.getElementById("loader").style.display = "none";
+  };
+
   overlay.appendChild(iframe);
   document.body.appendChild(overlay);
 
@@ -324,51 +365,6 @@ function createIframeOverlay(url) {
     }
   });
 }
-
-// function openFormsPopup() {
-//   const url = chrome.runtime.getURL("formsPopup.html");
-//   createIframeOverlay(url);
-// }
-
-// function openFormsPopup(val) {
-//   const shortcut = ":" + val;
-//   const storageKey = STORAGE_FORM_PREFIX + shortcut;
-
-//   if (window.chrome && window.chrome.storage) {
-//     window.chrome.storage.local.get(storageKey, (items) => {
-//       if (items[storageKey]) {
-//         const url = chrome.runtime.getURL(
-//           `formsPopup.html?shortcut=${encodeURIComponent(shortcut)}`
-//         );
-//         const popupWidth = 400;
-//         const popupHeight = 600;
-//         const left = window.innerWidth / 2 - popupWidth / 2;
-//         const top = window.innerHeight / 2 - popupHeight / 2;
-
-//         window.open(
-//           url,
-//           "_blank",
-//           `toolbar=no,
-//           location=no,
-//           directories=no,
-//           status=no,
-//           menubar=no,
-//           scrollbars=no,
-//           resizable=no,
-//           copyhistory=no,
-//           width=${popupWidth},
-//           height=${popupHeight},
-//           top=${top},
-//           left=${left}`
-//         );
-//       } else {
-//         console.log("No form found for the given shortcut.");
-//       }
-//     });
-//   } else {
-//     console.warn("window.chrome.storage.local is not available.");
-//   }
-// }
 
 function openFormsPopup(val, currTargetForms, orgTextForm) {
   const shortcut = ":" + val;
@@ -382,7 +378,7 @@ function openFormsPopup(val, currTargetForms, orgTextForm) {
             shortcut
           )}&orgTextForm=${encodeURIComponent(orgTextForm)}`
         );
-        createIframeOverlay(url); // Use the createIframeOverlay function instead of window.open
+        createIframeOverlay(url);
       } else {
         console.log("No form found for the given shortcut.");
       }
@@ -391,6 +387,12 @@ function openFormsPopup(val, currTargetForms, orgTextForm) {
     console.warn("window.chrome.storage.local is not available.");
   }
 }
+
+window.addEventListener("message", function (event) {
+  if (event.data.action === "close") {
+    document.getElementById("overlay").remove();
+  }
+});
 
 document.addEventListener("input", handleInputEvent);
 document.addEventListener("input", showSuggestions);
@@ -411,11 +413,6 @@ chrome.runtime.onMessage.addListener(handleMessage);
 window.addEventListener("message", (event) => {
   if (event.data.action === "insertFormData") {
     const formData = event.data.data;
-    // console.log("data recieved to content -- ", formData);
-    // function handleSite(target, originalText, expandedText) {
-    console.log("in msg listner : target : ", currTargetForms);
-    console.log("in msg listner : orgText : ", orgTextForm);
-    console.log("in msg listner : expText : ", formData);
     handleSite(currTargetForms, orgTextForm, formData);
   }
 });

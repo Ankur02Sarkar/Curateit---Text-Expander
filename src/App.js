@@ -1,3 +1,5 @@
+/* global chrome */
+
 import React, { useState, useEffect, useRef } from "react";
 import { AiOutlineEdit, AiOutlineDelete } from "react-icons/ai";
 import { TbUnlink, TbTextRecognition, TbForms } from "react-icons/tb";
@@ -33,11 +35,43 @@ function App() {
   const [filteredForms, setFilteredForms] = useState([]);
   const [formQuery, setFormQuery] = useState("");
   const [citationResult, setCitationResult] = useState("");
-  const [citeUrl, setCiteUrl] = useState("");
   const [citationData, setCitationData] = useState(null);
   const [citations, setCitations] = useState([]);
   const [citeRes, setCiteRes] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [currentDate, setCurrentDate] = useState("");
+
+  const monthNames = [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
+  ];
+
+  const getMonthName = (monthIndex) => {
+    return monthNames[monthIndex];
+  };
+
+  const setCurrentDateValue = () => {
+    const today = new Date();
+    const formattedDate = `${today.getDate()} ${getMonthName(
+      today.getMonth()
+    )} ${today.getFullYear()}`;
+    setCurrentDate(formattedDate);
+  };
+
+  useEffect(() => {
+    setCurrentDateValue();
+  }, []);
+
   const citationStyleRef = useRef();
   const saveCitationData = (citationData) => {
     if (window.chrome && window.chrome.storage && window.chrome.storage.local) {
@@ -52,28 +86,39 @@ function App() {
   const handleCiteButtonClick = async () => {
     setLoading(true);
     const selectedStyle = citationStyleRef.current.value;
+    if (typeof chrome !== "undefined" && chrome.storage) {
+      // Your chrome.storage related code here
+      chrome.tabs.query({ active: true, currentWindow: true }, async (tabs) => {
+        const citeUrl = tabs[0].url;
 
-    try {
-      const completion = await openai.createChatCompletion({
-        model: "gpt-3.5-turbo",
-        messages: [
-          {
-            role: "user",
-            content: `Today is 7th May 2023. Write me a ${selectedStyle} style citation for ${citeUrl}. Your answer should strictly follow a JSON format having the fields :- title, url, description, author, accessed_date, credibility(high/low/medium), citation, citation_format`,
-          },
-        ],
+        try {
+          const completion = await openai.createChatCompletion({
+            model: "gpt-3.5-turbo",
+            messages: [
+              {
+                role: "user",
+                content: `Keeping in mind today's date as ${currentDate}. Write me a ${selectedStyle} style citation for ${citeUrl}. Your answer should strictly follow a JSON format having the fields :- title, url, description, author, accessed_date(already provided), credibility(high/low/medium), citation, citation_format`,
+              },
+            ],
+          });
+
+          const result = completion.data.choices[0].message.content.trim();
+          setCiteRes(result);
+          const parsedResult = JSON.parse(result);
+          setCitationData(parsedResult);
+          setLoading(false);
+        } catch (error) {
+          console.error(error);
+          setCitationResult("Error: Failed to get a response");
+        }
       });
-
-      const result = completion.data.choices[0].message.content.trim();
-      setCiteRes(result);
-      const parsedResult = JSON.parse(result);
-      setCitationData(parsedResult);
-      setLoading(false);
-    } catch (error) {
-      console.error(error);
-      setCitationResult("Error: Failed to get a response");
+    } else {
+      console.warn("Chrome storage API not available.");
     }
+
+    // Get the current tab's URL
   };
+
   const fetchCitations = () => {
     if (window.chrome && window.chrome.storage && window.chrome.storage.local) {
       window.chrome.storage.local.get(null, (items) => {
@@ -574,11 +619,6 @@ function App() {
           <div className="saveCitations">
             <label htmlFor="">Cite an URL</label>
             <div>
-              <input
-                type="url"
-                placeholder="Enter URL"
-                onChange={(e) => setCiteUrl(e.target.value)}
-              />
               <select ref={citationStyleRef}>
                 <option value="Harvard">Harvard</option>
                 <option value="IEEE">IEEE</option>

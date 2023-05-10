@@ -3,19 +3,24 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="formsPopup.css" />
     <title>Forms Popup</title>
   </head>
-  <body>
-    <div id="form-popup-div"></div>
-    <textarea
-      placeholder="Form Data"
-      name=""
-      id="passed-shortcut"
-      cols="30"
-      rows="10"
-    >
-    </textarea>
-    <button id="insert-btn">Insert</button>
+  <body class="formsBody">
+    <div class="formsDiv">
+      <div id="loader" class="loader"></div>
+      <!-- Loader element -->
+      <div id="form-popup-div"></div>
+      <textarea
+        placeholder="Form Data"
+        name=""
+        id="passed-shortcut"
+        cols="30"
+        rows="10"
+      >
+      </textarea>
+      <button id="insert-btn" class="button-5" role="button">Insert</button>
+    </div>
     <script src="formsPopup.js"></script>
   </body>
 </html>
