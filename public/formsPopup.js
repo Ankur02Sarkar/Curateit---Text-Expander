@@ -38,7 +38,11 @@ document.addEventListener("DOMContentLoaded", () => {
     // Update text area value when user clicks Save button
     saveButton.addEventListener("click", () => {
       const inputValue = inputField.value;
-      const replacedData = templateText.replaceAll("{*}", inputValue);
+
+      // Create a regular expression that will match any string enclosed in {}
+      const variablePattern = /\{.*?\}/g;
+      const replacedData = templateText.replace(variablePattern, inputValue);
+
       passedShortcut.value = replacedData;
     });
   }
