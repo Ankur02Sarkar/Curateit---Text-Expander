@@ -345,8 +345,8 @@ function createIframeOverlay(url) {
   const iframe = document.createElement("iframe");
   iframe.src = url;
   iframe.style.border = "none";
-  iframe.style.width = "400px";
-  iframe.style.height = "600px";
+  iframe.style.width = "80%";
+  iframe.style.height = "70%";
   iframe.style.position = "absolute";
   iframe.style.left = "50%";
   iframe.style.top = "50%";

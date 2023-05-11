@@ -11,6 +11,7 @@
     display: grid;
     justify-content: center;
     justify-items: center;
+    grid-template-columns: 2fr 1fr;
     gap: 20px;
     background-color: #e2e2e2;
     padding: 20px;
@@ -87,4 +88,28 @@
     100% {
         transform: rotate(360deg);
     }
+}
+
+body {
+    margin: auto;
+}
+
+.displayWrapper {
+    display: flex;
+    width: 100%;
+    flex-direction: column;
+    text-align: center;
+    gap: 7px;
+}
+
+#input-wrapper {
+    margin: auto;
+    display: grid;
+    gap: 7px;
+}
+
+#input-wrapper input {
+    padding: 7px;
+    border-radius: 7px;
+    border: none;
 }
