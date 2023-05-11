@@ -8,7 +8,7 @@ document.addEventListener("DOMContentLoaded", () => {
   if (shortcut) {
     const passedShortcut = document.getElementById("passed-shortcut");
     const formPopupDiv = document.getElementById("form-popup-div");
-    // const saveButton = document.getElementById("save-btn");
+    const formsDiv = document.querySelector(".formsDiv");
 
     let templateText = "";
     let variableValues = {};
@@ -29,7 +29,16 @@ document.addEventListener("DOMContentLoaded", () => {
           const variablePattern = /\{.*?\}/g;
           const variableMatches = formData.match(variablePattern);
           if (variableMatches) {
+            // Create a wrapper div for input fields
+            const inputWrapper = document.createElement("div");
+            inputWrapper.id = "input-wrapper";
+
             variableMatches.forEach((variable) => {
+              // Skip if we've already created an input field for this variable
+              if (variableValues.hasOwnProperty(variable)) {
+                return;
+              }
+
               // Set a default value for the variable
               const defaultValue = variable;
               variableValues[variable] = defaultValue;
@@ -37,7 +46,7 @@ document.addEventListener("DOMContentLoaded", () => {
               // Create a new input field for the variable
               const inputField = document.createElement("input");
               inputField.type = "text";
-              inputField.value = defaultValue; // Set the input field's initial value to the default value
+              inputField.value = defaultValue;
               inputField.placeholder = `Enter value for ${variable} placeholder`;
               inputField.addEventListener("input", (event) => {
                 variableValues[variable] = event.target.value;
@@ -52,8 +61,12 @@ document.addEventListener("DOMContentLoaded", () => {
                 passedShortcut.value = replacedData;
               });
 
-              formPopupDiv.appendChild(inputField);
+              // Append input field to the wrapper div
+              inputWrapper.appendChild(inputField);
             });
+
+            // Append the wrapper div to formsDiv
+            formsDiv.appendChild(inputWrapper);
           }
         } else {
           passedShortcut.value = `No form data found for shortcut: ${shortcut}`;
@@ -65,16 +78,6 @@ document.addEventListener("DOMContentLoaded", () => {
       console.warn("Chrome storage API not available.");
       loader.style.display = "none";
     }
-
-    // saveButton.addEventListener("click", () => {
-    //   // Update Chrome storage with the new form data
-    //   const newFormData = passedShortcut.value;
-    //   const storageItem = {};
-    //   storageItem[key] = newFormData;
-    //   window.chrome.storage.local.set(storageItem, () => {
-    //     console.log("Form data saved.");
-    //   });
-    // });
   }
 });
 
