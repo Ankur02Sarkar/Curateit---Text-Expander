@@ -12,9 +12,9 @@ const STORAGE_FORM_PREFIX = "curateit_form_";
 const STORAGE_CITATION_PREFIX = "curateit_citation_";
 
 const configuration = new Configuration({
-  // apiKey: process.env.REACT_APP_OPENAI_API_KEY,
-  apiKey: "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",
+  apiKey: process.env.REACT_APP_OPENAI_API_KEY,
 });
+
 const openai = new OpenAIApi(configuration);
 
 function App() {
