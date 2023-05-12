@@ -20,7 +20,7 @@ body {
 #todolist {
   padding: 2rem 3rem 3rem;
   text-align: center;
-  max-width: 500px;
+  max-width: 700px;
   background-image: linear-gradient(315deg, #ffab00 0%, #ff5159 74%);
   color: #FFF;
   overflow: auto;
@@ -337,12 +337,6 @@ label {
 
 .copyButton {
   display: none;
-  cursor: pointer;
-  padding: 5px;
-  border: none;
-  background: teal;
-  color: white;
-  transition: opacity 0.3s ease-in-out;
 }
 
 .listItem:hover .copyButton {
