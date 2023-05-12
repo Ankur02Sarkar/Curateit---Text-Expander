@@ -590,26 +590,8 @@ function App() {
   useEffect(() => {
     setCurrentDateValue();
   }, []);
-Title : Microsoft Visual Studio Code - Code Editing. Redefined
-Url : https://vscode.dev/
-Desc : Visual Studio Code is a lightweight but powerful source code editor that runs on your desktop and is available for Windows, macOS, and Linux. It comes with built-in support for TypeScript, JavaScript, and Node.js and has a rich ecosystem of extensions for other languages (such as C++, C#, Java, Python, PHP, Go) and runtimes (such as .NET and Unity).
-Author : Microsoft Corporation
-Date : 12 May 2023
-Credibility : high
-Citation : Microsoft Corporation. (n.d.). Microsoft Visual Studio Code - Code Editing. Redefined. Retrieved May 12, 2023, from https://vscode.dev/
-Format : AMA
 
   const citationStyleRef = useRef();
-  const saveCitationData = (citationData) => {
-    if (window.chrome && window.chrome.storage && window.chrome.storage.local) {
-      const key = STORAGE_CITATION_PREFIX + Date.now();
-      window.chrome.storage.local.set({ [key]: citationData }, () => {
-        fetchCitations();
-      });
-    } else {
-      console.warn("Chrome storage API not available.");
-    }
-  };
 
   const handleCiteButtonClick = async () => {
     setLoading(true);
@@ -909,11 +891,6 @@ Format : AMA
     fetchShortcuts();
   }, []);
 
-  const openPopup = () => {
-    const popupUrl =
-      "chrome-extension://pmkaanjncdpcijofnpfpabfkjfnpnmnb/shortcutPopup.html";
-    window.open(popupUrl, "shortcutPopup", "width=400,height=300");
-  };
   return (
     <>
       <main id="todolist">
