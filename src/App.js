@@ -42,6 +42,26 @@ function App() {
   const [currentDate, setCurrentDate] = useState("");
   const listItemRef = useRef();
   const [isCopied, setIsCopied] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
+
+  const handleSearchChange = (event) => {
+    setSearchTerm(event.target.value);
+  };
+
+  const saveCitation = (index, data) => {
+    if (window.chrome && window.chrome.storage && window.chrome.storage.local) {
+      window.chrome.storage.local.set(
+        { [`${STORAGE_CITATION_PREFIX}${index}`]: data },
+        () => {
+          console.log("Citation saved.");
+          fetchCitations();
+        }
+      );
+    } else {
+      console.warn("Chrome storage API not available.");
+    }
+  };
 
   const copyToClipboard = () => {
     const range = document.createRange();
@@ -619,7 +639,10 @@ function App() {
           const result = completion.data.choices[0].message.content.trim();
           setCiteRes(result);
           const parsedResult = JSON.parse(result);
+          console.log("Res from api : \n", parsedResult);
           setCitationData(parsedResult);
+          const index = citations.length + 1;
+          saveCitation(index, parsedResult);
           setLoading(false);
         } catch (error) {
           console.error(error);
@@ -636,15 +659,21 @@ function App() {
   const fetchCitations = () => {
     if (window.chrome && window.chrome.storage && window.chrome.storage.local) {
       window.chrome.storage.local.get(null, (items) => {
-        const fetchedCitations = Object.entries(items).filter(([key]) =>
-          key.startsWith(STORAGE_CITATION_PREFIX)
-        );
+        const fetchedCitations = Object.entries(items)
+          .filter(([key]) => key.startsWith(STORAGE_CITATION_PREFIX))
+          .filter(
+            ([_, value]) =>
+              !searchQuery ||
+              value.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+              value.citation.toLowerCase().includes(searchQuery.toLowerCase())
+          );
         setCitations(fetchedCitations);
       });
     } else {
       console.warn("Chrome storage API not available.");
     }
   };
+
   useEffect(() => {
     fetchCitations();
   }, []);
@@ -1145,6 +1174,13 @@ function App() {
               </button>
             </div>
 
+            <input
+              type="text"
+              placeholder="Search citations..."
+              value={searchTerm}
+              onChange={handleSearchChange}
+            />
+
             <ul className="listWrapper">
               {loading && <h3>Gathering Data...</h3>}
               {citationData && (
@@ -1153,53 +1189,43 @@ function App() {
                   style={{ flexDirection: "column" }}
                   onMouseLeave={resetCopyState}
                 >
-                  <div className="labelWrapper" ref={listItemRef}>
-                    <div className="entry">
-                      <span className="entryTitle">Title : </span>
-                      <span className="entryData">{citationData.title}</span>
-                    </div>
-                    <div className="entry">
-                      <span className="entryTitle">Url : </span>
-                      <span className="entryData">{citationData.url}</span>
-                    </div>
-                    <div className="entry">
-                      <span className="entryTitle">Desc : </span>
-                      <span className="entryData">
-                        {citationData.description}
-                      </span>
-                    </div>
-                    <div className="entry">
-                      <span className="entryTitle">Author : </span>
-                      <span className="entryData">{citationData.author}</span>
-                    </div>
-                    <div className="entry">
-                      <span className="entryTitle">Date : </span>
-                      <span className="entryData">
-                        {citationData.accessed_date}
-                      </span>
-                    </div>
-                    <div className="entry">
-                      <span className="entryTitle">Credibility : </span>
-                      <span className="entryData">
-                        {citationData.credibility}
-                      </span>
-                    </div>
-                    <div className="entry">
-                      <span className="entryTitle">Citation : </span>
-                      <span className="entryData">{citationData.citation}</span>
-                    </div>
-                    <div className="entry">
-                      <span className="entryTitle">Format : </span>
-                      <span className="entryData">
-                        {citationData.citation_format}
-                      </span>
-                    </div>
-                  </div>
-                  <button className="copyButton" onClick={copyToClipboard}>
-                    {isCopied ? "Copied!!" : "Copy"}
-                  </button>
+                  {/* Citation data display */}
                 </li>
               )}
+
+              {citations
+                .filter(([key, citation]) => {
+                  // Assuming citation is an object with a 'title' field
+                  if (
+                    citation.title
+                      .toLowerCase()
+                      .includes(searchTerm.toLowerCase())
+                  ) {
+                    return true;
+                  }
+                  return false;
+                })
+                .map(([key, citation], index) => (
+                  <li
+                    className="listItem"
+                    style={{ flexDirection: "column" }}
+                    key={index}
+                    onMouseLeave={resetCopyState}
+                  >
+                    <div className="labelWrapper">
+                      {/* Replace citation with actual fields */}
+                      {Object.entries(citation).map(([field, value]) => (
+                        <div className="entry" key={field}>
+                          <span className="entryTitle">{`${field} : `}</span>
+                          <span className="entryData">{value}</span>
+                        </div>
+                      ))}
+                    </div>
+                    <button className="copyButton" onClick={copyToClipboard}>
+                      {isCopied ? "Copied!!" : "Copy"}
+                    </button>
+                  </li>
+                ))}
             </ul>
           </div>
         )}
