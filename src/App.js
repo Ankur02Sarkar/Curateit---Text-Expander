@@ -71,9 +71,10 @@ function App() {
     }
   };
 
-  const copyToClipboard = () => {
+  const copyToClipboard = (event) => {
     const range = document.createRange();
-    range.selectNode(listItemRef.current);
+    const parentElement = event.target.parentElement; // Get the parent div of the clicked button
+    range.selectNode(parentElement);
     window.getSelection().removeAllRanges();
     window.getSelection().addRange(range);
     document.execCommand("copy");
@@ -1191,47 +1192,7 @@ function App() {
 
             <ul className="listWrapper">
               {loading && <h3>Gathering Data...</h3>}
-              {citationData && (
-                <li
-                  className="listItem"
-                  style={{ flexDirection: "column" }}
-                  onMouseLeave={resetCopyState}
-                >
-                  {/* Citation data display */}
-                </li>
-              )}
 
-              {/* {citations
-                .filter(([key, citation]) => {
-                  if (
-                    citation.title
-                      .toLowerCase()
-                      .includes(searchTerm.toLowerCase())
-                  ) {
-                    return true;
-                  }
-                  return false;
-                })
-                .map(([key, citation], index) => (
-                  <li
-                    className="listItem"
-                    style={{ flexDirection: "column" }}
-                    key={index}
-                    onMouseLeave={resetCopyState}
-                  >
-                    <div className="labelWrapper">
-                      {Object.entries(citation).map(([field, value]) => (
-                        <div className="entry" key={field}>
-                          <span className="entryTitle">{`${field} : `}</span>
-                          <span className="entryData">{value}</span>
-                        </div>
-                      ))}
-                    </div>
-                    <button className="copyButton" onClick={copyToClipboard}>
-                      {isCopied ? "Copied!!" : "Copy"}
-                    </button>
-                  </li>
-                ))} */}
               {citations
                 .filter(([key, citation]) => {
                   return citation.title
