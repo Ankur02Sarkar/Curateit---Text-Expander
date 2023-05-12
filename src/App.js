@@ -650,7 +650,7 @@ function App() {
             </div>
 
             <ul className="listWrapper">
-              {loading && <h2>Loading...</h2>}
+              {loading && <h3>Gathering Data...</h3>}
               {citationData && (
                 <li
                   className="listItem"
@@ -700,7 +700,7 @@ function App() {
                     </div>
                   </div>
                   <button className="copyButton" onClick={copyToClipboard}>
-                    {isCopied ? "Copied" : "Copy"}
+                    {isCopied ? "Copied!!" : "Copy"}
                   </button>
                 </li>
               )}
@@ -757,7 +757,6 @@ function App() {
                 </button>
               </li> */}
             </ul>
-            {/* <div className="citation-result">{citeRes}</div> */}
           </div>
         )}
       </main>
