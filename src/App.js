@@ -40,6 +40,22 @@ function App() {
   const [citeRes, setCiteRes] = useState([]);
   const [loading, setLoading] = useState(false);
   const [currentDate, setCurrentDate] = useState("");
+  const listItemRef = useRef();
+  const [isCopied, setIsCopied] = useState(false);
+
+  const copyToClipboard = () => {
+    const range = document.createRange();
+    range.selectNode(listItemRef.current);
+    window.getSelection().removeAllRanges();
+    window.getSelection().addRange(range);
+    document.execCommand("copy");
+    window.getSelection().removeAllRanges();
+    setIsCopied(true);
+  };
+
+  const resetCopyState = () => {
+    setIsCopied(false);
+  };
 
   const monthNames = [
     "January",
@@ -633,55 +649,113 @@ function App() {
               </button>
             </div>
 
-            <ul>
+            <ul className="listWrapper">
               {loading && <h2>Loading...</h2>}
               {citationData && (
-                <li style={{ flexDirection: "column" }}>
-                  <div className="labelWrapper">
-                    <div className="listItem">
-                      <span className="listData">Title : </span>
-                      <span className="listData">{citationData.title}</span>
+                <li
+                  className="listItem"
+                  style={{ flexDirection: "column" }}
+                  onMouseLeave={resetCopyState}
+                >
+                  <div className="labelWrapper" ref={listItemRef}>
+                    <div className="entry">
+                      <span className="entryTitle">Title : </span>
+                      <span className="entryData">{citationData.title}</span>
                     </div>
-                    <div className="listItem">
-                      <span className="listData">Url : </span>
-                      <span className="listData">{citationData.url}</span>
+                    <div className="entry">
+                      <span className="entryTitle">Url : </span>
+                      <span className="entryData">{citationData.url}</span>
                     </div>
-                    <div className="listItem">
-                      <span className="listData">Desc : </span>
-                      <span className="listData">
+                    <div className="entry">
+                      <span className="entryTitle">Desc : </span>
+                      <span className="entryData">
                         {citationData.description}
                       </span>
                     </div>
-                    <div className="listItem">
-                      <span className="listData">Author : </span>
-                      <span className="listData">{citationData.author}</span>
+                    <div className="entry">
+                      <span className="entryTitle">Author : </span>
+                      <span className="entryData">{citationData.author}</span>
                     </div>
-                    <div className="listItem">
-                      <span className="listData">Date : </span>
-                      <span className="listData">
+                    <div className="entry">
+                      <span className="entryTitle">Date : </span>
+                      <span className="entryData">
                         {citationData.accessed_date}
                       </span>
                     </div>
-                    <div className="listItem">
-                      <span className="listData">Credibility : </span>
-                      <span className="listData">
+                    <div className="entry">
+                      <span className="entryTitle">Credibility : </span>
+                      <span className="entryData">
                         {citationData.credibility}
                       </span>
                     </div>
-                    <div className="listItem">
-                      <span className="listData">Citation : </span>
-                      <span className="listData">{citationData.citation}</span>
+                    <div className="entry">
+                      <span className="entryTitle">Citation : </span>
+                      <span className="entryData">{citationData.citation}</span>
                     </div>
-                    <div className="listItem">
-                      <span className="listData">Format : </span>
-                      <span className="listData">
+                    <div className="entry">
+                      <span className="entryTitle">Format : </span>
+                      <span className="entryData">
                         {citationData.citation_format}
                       </span>
                     </div>
                   </div>
-                  {/* ... */}
+                  <button className="copyButton" onClick={copyToClipboard}>
+                    {isCopied ? "Copied" : "Copy"}
+                  </button>
                 </li>
               )}
+
+              {/* <li
+                className="listItem"
+                style={{ flexDirection: "column" }}
+                onMouseLeave={resetCopyState}
+              >
+                <div className="labelWrapper" ref={listItemRef}>
+                  <div className="entry">
+                    <span className="entryTitle">Title : </span>
+                    <span className="entryData">{citationData.title}</span>
+                  </div>
+                  <div className="entry">
+                    <span className="entryTitle">Url : </span>
+                    <span className="entryData">{citationData.url}</span>
+                  </div>
+                  <div className="entry">
+                    <span className="entryTitle">Desc : </span>
+                    <span className="entryData">
+                      {citationData.description}
+                    </span>
+                  </div>
+                  <div className="entry">
+                    <span className="entryTitle">Author : </span>
+                    <span className="entryData">{citationData.author}</span>
+                  </div>
+                  <div className="entry">
+                    <span className="entryTitle">Date : </span>
+                    <span className="entryData">
+                      {citationData.accessed_date}
+                    </span>
+                  </div>
+                  <div className="entry">
+                    <span className="entryTitle">Credibility : </span>
+                    <span className="entryData">
+                      {citationData.credibility}
+                    </span>
+                  </div>
+                  <div className="entry">
+                    <span className="entryTitle">Citation : </span>
+                    <span className="entryData">{citationData.citation}</span>
+                  </div>
+                  <div className="entry">
+                    <span className="entryTitle">Format : </span>
+                    <span className="entryData">
+                      {citationData.citation_format}
+                    </span>
+                  </div>
+                </div>
+                <button className="copyButton" onClick={copyToClipboard}>
+                  {isCopied ? "Copied" : "Copy"}
+                </button>
+              </li> */}
             </ul>
             {/* <div className="citation-result">{citeRes}</div> */}
           </div>

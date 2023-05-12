@@ -9,7 +9,6 @@ body {
   background: #f7f1f1;
   font-size: 1.1rem;
   font-family: 'Quicksand', sans-serif;
-  /* height: 100%; */
 }
 
 @keyframes strikeitem {
@@ -28,7 +27,6 @@ body {
 }
 
 #todolist h1 {
-  /*text-align:center;*/
   font-weight: normal;
   font-size: 2.3rem;
   letter-spacing: 0.05em;
@@ -105,7 +103,7 @@ body {
 }
 
 
-/* FORM */
+
 form {
   margin-top: 3rem;
   display: flex;
@@ -158,7 +156,7 @@ button {
 }
 
 
-/* TOOGLE COMPONENT */
+
 .togglebutton-wrapper {
   margin-top: 1em;
 }
@@ -186,7 +184,6 @@ button {
   width: 38px;
   height: 22px;
   background: white;
-  /*border:1px solid black;*/
   border-radius: 999px;
   cursor: pointer;
 }
@@ -199,7 +196,6 @@ button {
   display: block;
   width: 18px;
   height: 18px;
-  /*border:1px solid #FF6666;*/
   border-radius: 50%;
   background: #FF6666;
   opacity: 0.7;
@@ -287,6 +283,7 @@ label {
 
 .saveCitations {
   display: flex;
+  align-items: center;
   flex-direction: column;
   gap: 10px;
 }
@@ -298,4 +295,56 @@ label {
 
 .listItem {
   display: flex;
+}
+
+.entryTitle {
+  font-weight: 600;
+  color: #333;
+}
+
+.entryData {
+  font-weight: 400;
+  color: #666;
+}
+
+.entry {
+  position: relative;
+  padding: 7px 0;
+}
+
+.entry::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 70px;
+  margin: auto;
+  border-bottom: 1px solid #19A7CE;
+}
+
+.entry:last-child::after {
+  display: none;
+}
+
+.listItem {
+  transition: all 0.3s ease-in-out;
+}
+
+.listItem:hover {
+  background: lightgrey;
+}
+
+.copyButton {
+  display: none;
+  cursor: pointer;
+  padding: 5px;
+  border: none;
+  background: teal;
+  color: white;
+  transition: opacity 0.3s ease-in-out;
+}
+
+.listItem:hover .copyButton {
+  display: block;
 }
