@@ -590,6 +590,14 @@ function App() {
   useEffect(() => {
     setCurrentDateValue();
   }, []);
+Title : Microsoft Visual Studio Code - Code Editing. Redefined
+Url : https://vscode.dev/
+Desc : Visual Studio Code is a lightweight but powerful source code editor that runs on your desktop and is available for Windows, macOS, and Linux. It comes with built-in support for TypeScript, JavaScript, and Node.js and has a rich ecosystem of extensions for other languages (such as C++, C#, Java, Python, PHP, Go) and runtimes (such as .NET and Unity).
+Author : Microsoft Corporation
+Date : 12 May 2023
+Credibility : high
+Citation : Microsoft Corporation. (n.d.). Microsoft Visual Studio Code - Code Editing. Redefined. Retrieved May 12, 2023, from https://vscode.dev/
+Format : AMA
 
   const citationStyleRef = useRef();
   const saveCitationData = (citationData) => {
@@ -602,6 +610,7 @@ function App() {
       console.warn("Chrome storage API not available.");
     }
   };
+
   const handleCiteButtonClick = async () => {
     setLoading(true);
     const selectedStyle = citationStyleRef.current.value;
@@ -1214,53 +1223,6 @@ function App() {
                   </button>
                 </li>
               )}
-
-              {/* <li className="listItem" style={{ flexDirection: "column" }}>
-                <div className="labelWrapper">
-                  <div className="entry">
-                    <span className="entryTitle">Title : </span>
-                    <span className="entryData">cxvxcv</span>
-                  </div>
-                  <div className="entry">
-                    <span className="entryTitle">Url : </span>
-                    <span className="entryData">
-                      xcvcxvcxvcxvcxvcxvxcvxcvxcvcxv
-                    </span>
-                  </div>
-                  <div className="entry">
-                    <span className="entryTitle">Desc : </span>
-                    <span className="entryData">
-                      xcvcx x xcx xc xc xcvcxvcxv cxvcxvcxvcx cxvcxv xcvcxvcxvcx
-                    </span>
-                  </div>
-                  <div className="entry">
-                    <span className="entryTitle">Author : </span>
-                    <span className="entryData">xcvxcvcxv</span>
-                  </div>
-                  <div className="entry">
-                    <span className="entryTitle">Date : </span>
-                    <span className="entryData">xcv xcvcx xcxc</span>
-                  </div>
-                  <div className="entry">
-                    <span className="entryTitle">Credibility : </span>
-                    <span className="entryData">xcvxcvcxv</span>
-                  </div>
-                  <div className="entry">
-                    <span className="entryTitle">Citation : </span>
-                    <span className="entryData">
-                      vxcxcv xcvcx cxvcxv cxvcxv xc c cxxccx xc cxvcxvcxv
-                      cxvcxvcxvc cxvcxvcv cxvcxvxc
-                    </span>
-                  </div>
-                  <div className="entry">
-                    <span className="entryTitle">Format : </span>
-                    <span className="entryData">xddsfsdf</span>
-                  </div>
-                </div>
-                <button className="copyButton" onClick={copyToClipboard}>
-                  {isCopied ? "Copied!!" : "Copy"}
-                </button>
-              </li> */}
             </ul>
           </div>
         )}
