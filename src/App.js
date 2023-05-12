@@ -45,6 +45,14 @@ function App() {
   const [searchQuery, setSearchQuery] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
 
+  function toTitleCase(str) {
+    return str
+      .replace(/_/g, " ") // replace underscores with spaces
+      .replace(/\w\S*/g, function (txt) {
+        return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+      });
+  }
+
   const handleSearchChange = (event) => {
     setSearchTerm(event.target.value);
   };
@@ -1193,9 +1201,8 @@ function App() {
                 </li>
               )}
 
-              {citations
+              {/* {citations
                 .filter(([key, citation]) => {
-                  // Assuming citation is an object with a 'title' field
                   if (
                     citation.title
                       .toLowerCase()
@@ -1213,13 +1220,49 @@ function App() {
                     onMouseLeave={resetCopyState}
                   >
                     <div className="labelWrapper">
-                      {/* Replace citation with actual fields */}
                       {Object.entries(citation).map(([field, value]) => (
                         <div className="entry" key={field}>
                           <span className="entryTitle">{`${field} : `}</span>
                           <span className="entryData">{value}</span>
                         </div>
                       ))}
+                    </div>
+                    <button className="copyButton" onClick={copyToClipboard}>
+                      {isCopied ? "Copied!!" : "Copy"}
+                    </button>
+                  </li>
+                ))} */}
+              {citations
+                .filter(([key, citation]) => {
+                  return citation.title
+                    .toLowerCase()
+                    .includes(searchTerm.toLowerCase());
+                })
+                .map(([key, citation], index) => (
+                  <li
+                    className="listItem"
+                    style={{ flexDirection: "column" }}
+                    key={index}
+                    onMouseLeave={resetCopyState}
+                  >
+                    <div className="labelWrapper">
+                      <div className="entry">
+                        <span className="entryTitle">{`Title : `}</span>
+                        <span className="entryData">{citation.title}</span>
+                      </div>
+                      {Object.entries(citation).map(([field, value]) => {
+                        if (field !== "title") {
+                          return (
+                            <div className="entry" key={field}>
+                              <span className="entryTitle">{`${toTitleCase(
+                                field
+                              )} : `}</span>
+                              <span className="entryData">{value}</span>
+                            </div>
+                          );
+                        }
+                        return null;
+                      })}
                     </div>
                     <button className="copyButton" onClick={copyToClipboard}>
                       {isCopied ? "Copied!!" : "Copy"}
