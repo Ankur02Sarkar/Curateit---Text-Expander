@@ -1,27 +1,18 @@
 /* global chrome */
-
 import React, { useState, useEffect, useRef } from "react";
 import { AiOutlineEdit, AiOutlineDelete } from "react-icons/ai";
 import { TbUnlink, TbTextRecognition, TbForms } from "react-icons/tb";
 import { CiTextAlignCenter } from "react-icons/ci";
 import { Configuration, OpenAIApi } from "openai";
-import Citations from "./components/Citations";
-import Forms from "./components/Forms";
-import Links from "./components/Links";
-import Text from "./components/Text";
-import "./App.css";
-const STORAGE_LINKS_PREFIX = "curateit_links_";
-const STORAGE_TEXT_PREFIX = "curateit_text_";
+
 const STORAGE_FORM_PREFIX = "curateit_form_";
-const STORAGE_CITATION_PREFIX = "curateit_citation_";
 
 const configuration = new Configuration({
   apiKey: process.env.REACT_APP_OPENAI_API_KEY,
 });
 
 const openai = new OpenAIApi(configuration);
-
-function App() {
+const Forms = () => {
   const [text, setText] = useState("");
   const [url, setUrl] = useState("");
   const [shortcuts, setShortcuts] = useState([]);
@@ -934,312 +925,76 @@ function App() {
   }, []);
 
   return (
-    <>
-      <main id="todolist">
-        <h1>
-          Curateit
-          <span>Build your personal corner on the web</span>
-        </h1>
-        <div className="btn-wrapper">
-          <TbUnlink
-            className="btnLink"
-            aria-label="Link"
-            onClick={handleLinkBtnClick}
-            size={37}
-          />
-
-          <TbTextRecognition
-            className="btnText"
-            onClick={handleTextBtnClick}
-            size={37}
-            data-tooltip="Text Recognition"
-          />
-
-          <TbForms className="btnForm" onClick={handleFormBtnClick} size={37} />
-          <CiTextAlignCenter
-            className="btnCitation"
-            onClick={handleCitationBtnClick}
-            size={37}
-          />
-        </div>
-        {displayDiv === "saveLinks" && (
-          <div className="saveLinks">
-            <form name="newform">
-              <label htmlFor="newitem">Save your Links</label>
-              <input
-                placeholder="URL"
-                value={url}
-                onChange={(e) => setUrl(e.target.value)}
-              />
-              <input
-                placeholder="Text"
-                value={text}
-                onChange={(e) => setText(e.target.value)}
-              />
-              <button onClick={(e) => saveShortcut(e)}>Save</button>
-            </form>
-            <ul>
-              {shortcuts.map((shortcut, index) => (
-                <li className="" key={index}>
-                  <div className="labelWrapper">
-                    <span className="label shortcutText">{shortcut.text}</span>
-                    <span className="label shortcutUrl"> {shortcut.url} </span>
-                  </div>
-                  <div className="actions">
-                    <button
-                      type="button"
-                      aria-label="Edit"
-                      title="Edit"
-                      className="btn-picto"
-                      onClick={() => editShortcut(shortcut)}
-                    >
-                      <AiOutlineEdit className="edit-btn" size={32} />
-                    </button>
-                    <button
-                      type="button"
-                      aria-label="Delete"
-                      title="Delete"
-                      className="btn-picto"
-                      onClick={() => deleteShortcut(shortcut)}
-                    >
-                      <AiOutlineDelete className="delete-btn" size={32} />
-                    </button>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
-        {displayDiv === "saveText" && (
-          <div className="saveText">
-            <label htmlFor="">Save Your Text</label>
+    <div className="saveForms">
+      <label htmlFor="">Save Your Forms</label>
+      <input
+        type="text"
+        placeholder="Search forms..."
+        value={formQuery}
+        onChange={(e) => setFormQuery(e.target.value)}
+      />
+      <input
+        type="text"
+        placeholder="Form Title"
+        value={newFormTitle}
+        onChange={(e) => setNewFormTitle(e.target.value)}
+      />
+      <textarea
+        placeholder="Form Data"
+        value={newFormData}
+        onChange={(e) => setNewFormData(e.target.value)}
+        rows={7}
+        style={{
+          background: "#f7f1f1",
+          border: "none",
+          width: "100%",
+          fontSize: "17px",
+          padding: "12px",
+        }}
+      />
+      <button type="button" onClick={addForm} style={{ marginLeft: "0px" }}>
+        {editingFormKey ? "Update" : "Add"}
+      </button>
+      <ul>
+        {filteredForms.map(([key, value]) => (
+          <li key={key} style={{ flexDirection: "column" }}>
             <div
-              style={{ display: "flex", flexDirection: "column", gap: "7px" }}
+              className="labelWrapper"
+              style={{ display: "flex", flexDirection: "column" }}
             >
-              <input
-                type="text"
-                placeholder="Search..."
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-              />
-              <input
-                type="text"
-                placeholder="Shortcut"
-                value={newShortcut}
-                onChange={(e) => setNewShortcut(e.target.value)}
-              />
-              <div className="richtextWrapper">
-                <textarea
-                  placeholder="Expansion"
-                  value={newExpansion}
-                  onChange={(e) => setNewExpansion(e.target.value)}
-                  rows={7}
-                  style={{
-                    background: "#f7f1f1",
-                    border: "none",
-                    width: "100%",
-                    fontSize: "17px",
-                    padding: "12px",
-                  }}
-                />
-              </div>
+              <span
+                className="label formTitle"
+                style={{ fontSize: "27px", fontWeight: "900" }}
+              >
+                {key.replace(STORAGE_FORM_PREFIX, "")}
+              </span>
+              <span className="label formData">{value}</span>
+            </div>
+            <div className="actions">
               <button
                 type="button"
-                onClick={addExpansion}
-                style={{ marginLeft: "0px" }}
+                aria-label="Edit"
+                title="Edit"
+                className="btn-picto"
+                onClick={() => editForm(key)}
               >
-                {editingKey ? "Update" : "Add"}
+                <AiOutlineEdit className="edit-btn" size={32} />
               </button>
-            </div>
-            <ul>
-              {filteredExpansions.map(([key, value]) => (
-                <li key={key} style={{ flexDirection: "column" }}>
-                  <div
-                    className="labelWrapper"
-                    style={{ display: "flex", flexDirection: "column" }}
-                  >
-                    <span
-                      className="label shortcutText"
-                      style={{ fontSize: "27px", fontWeight: "900" }}
-                    >
-                      {key.replace(STORAGE_TEXT_PREFIX, "")}
-                    </span>
-                    <span className="label shortcutUrl">{value}</span>
-                  </div>
-                  <div className="actions">
-                    <button
-                      type="button"
-                      aria-label="Edit"
-                      title="Edit"
-                      className="btn-picto"
-                      onClick={() => editExpansion(key)}
-                    >
-                      <AiOutlineEdit className="edit-btn" size={32} />
-                    </button>
-                    <button
-                      type="button"
-                      aria-label="Delete"
-                      title="Delete"
-                      className="btn-picto"
-                      onClick={() => deleteExpansion(key)}
-                    >
-                      <AiOutlineDelete className="delete-btn" size={32} />
-                    </button>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
-        {displayDiv === "saveForms" && (
-          <div className="saveForms">
-            <label htmlFor="">Save Your Forms</label>
-            <input
-              type="text"
-              placeholder="Search forms..."
-              value={formQuery}
-              onChange={(e) => setFormQuery(e.target.value)}
-            />
-            <input
-              type="text"
-              placeholder="Form Title"
-              value={newFormTitle}
-              onChange={(e) => setNewFormTitle(e.target.value)}
-            />
-            <textarea
-              placeholder="Form Data"
-              value={newFormData}
-              onChange={(e) => setNewFormData(e.target.value)}
-              rows={7}
-              style={{
-                background: "#f7f1f1",
-                border: "none",
-                width: "100%",
-                fontSize: "17px",
-                padding: "12px",
-              }}
-            />
-            <button
-              type="button"
-              onClick={addForm}
-              style={{ marginLeft: "0px" }}
-            >
-              {editingFormKey ? "Update" : "Add"}
-            </button>
-            <ul>
-              {filteredForms.map(([key, value]) => (
-                <li key={key} style={{ flexDirection: "column" }}>
-                  <div
-                    className="labelWrapper"
-                    style={{ display: "flex", flexDirection: "column" }}
-                  >
-                    <span
-                      className="label formTitle"
-                      style={{ fontSize: "27px", fontWeight: "900" }}
-                    >
-                      {key.replace(STORAGE_FORM_PREFIX, "")}
-                    </span>
-                    <span className="label formData">{value}</span>
-                  </div>
-                  <div className="actions">
-                    <button
-                      type="button"
-                      aria-label="Edit"
-                      title="Edit"
-                      className="btn-picto"
-                      onClick={() => editForm(key)}
-                    >
-                      <AiOutlineEdit className="edit-btn" size={32} />
-                    </button>
-                    <button
-                      type="button"
-                      aria-label="Delete"
-                      title="Delete"
-                      className="btn-picto"
-                      onClick={() => deleteForm(key)}
-                    >
-                      <AiOutlineDelete className="delete-btn" size={32} />
-                    </button>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
-        {displayDiv === "saveCitations" && (
-          <div className="saveCitations">
-            <label htmlFor="">Cite an URL</label>
-            <div>
-              <select ref={citationStyleRef}>
-                {citationStyles.map((style) => (
-                  <option key={style} value={style}>
-                    {style}
-                  </option>
-                ))}
-              </select>
-
               <button
                 type="button"
-                onClick={handleCiteButtonClick}
-                style={{ marginLeft: "0px" }}
+                aria-label="Delete"
+                title="Delete"
+                className="btn-picto"
+                onClick={() => deleteForm(key)}
               >
-                Cite
+                <AiOutlineDelete className="delete-btn" size={32} />
               </button>
             </div>
-
-            <input
-              type="text"
-              placeholder="Search citations..."
-              value={searchTerm}
-              onChange={handleSearchChange}
-            />
-
-            <ul className="listWrapper">
-              {loading && <h3>Gathering Data...</h3>}
-
-              {citations
-                .filter(([key, citation]) => {
-                  return citation.title
-                    .toLowerCase()
-                    .includes(searchTerm.toLowerCase());
-                })
-                .map(([key, citation], index) => (
-                  <li
-                    className="listItem"
-                    style={{ flexDirection: "column" }}
-                    key={index}
-                    onMouseLeave={resetCopyState}
-                  >
-                    <div className="labelWrapper">
-                      <div className="entry">
-                        <span className="entryTitle">{`Title : `}</span>
-                        <span className="entryData">{citation.title}</span>
-                      </div>
-                      {Object.entries(citation).map(([field, value]) => {
-                        if (field !== "title") {
-                          return (
-                            <div className="entry" key={field}>
-                              <span className="entryTitle">{`${toTitleCase(
-                                field
-                              )} : `}</span>
-                              <span className="entryData">{value}</span>
-                            </div>
-                          );
-                        }
-                        return null;
-                      })}
-                    </div>
-                    <button className="copyButton" onClick={copyToClipboard}>
-                      {isCopied ? "Copied!!" : "Copy"}
-                    </button>
-                  </li>
-                ))}
-            </ul>
-          </div>
-        )}
-      </main>
-    </>
+          </li>
+        ))}
+      </ul>
+    </div>
   );
-}
+};
 
-export default App;
+export default Forms;
