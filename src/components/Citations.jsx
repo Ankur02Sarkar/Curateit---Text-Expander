@@ -663,6 +663,17 @@ const Citations = () => {
     fetchCitations();
   }, []);
 
+  const removeCitation = (key) => {
+    if (window.chrome && window.chrome.storage && window.chrome.storage.local) {
+      window.chrome.storage.local.remove(key, () => {
+        console.log("Citation removed.");
+        fetchCitations();
+      });
+    } else {
+      console.warn("Chrome storage API not available.");
+    }
+  };
+
   return (
     <div className="saveCitations">
       <label htmlFor="">Cite an URL</label>
@@ -726,9 +737,17 @@ const Citations = () => {
                   return null;
                 })}
               </div>
-              <button className="copyButton" onClick={copyToClipboard}>
-                {isCopied ? "Copied!!" : "Copy"}
-              </button>
+              <div style={{ display: "flex", flexDirection: "row" }}>
+                <button className="copyButton" onClick={copyToClipboard}>
+                  {isCopied ? "Copied!!" : "Copy"}
+                </button>
+                <button
+                  className="deleteButton"
+                  onClick={() => removeCitation(key)}
+                >
+                  Delete
+                </button>
+              </div>
             </li>
           ))}
       </ul>
