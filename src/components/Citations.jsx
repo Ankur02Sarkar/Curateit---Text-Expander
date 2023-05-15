@@ -33,10 +33,10 @@ const Citations = () => {
     setSearchTerm(event.target.value);
   };
 
-  const saveCitation = (index, data) => {
+  const saveCitation = (key, data) => {
     if (window.chrome && window.chrome.storage && window.chrome.storage.local) {
       window.chrome.storage.local.set(
-        { [`${STORAGE_CITATION_PREFIX}${index}`]: data },
+        { [`${STORAGE_CITATION_PREFIX}${key}`]: data },
         () => {
           console.log("Citation saved.");
           fetchCitations();
@@ -603,7 +603,6 @@ const Citations = () => {
     setLoading(true);
     const selectedStyle = citationStyleRef.current.value;
     if (typeof chrome !== "undefined" && chrome.storage) {
-      // Your chrome.storage related code here
       chrome.tabs.query({ active: true, currentWindow: true }, async (tabs) => {
         const citeUrl = tabs[0].url;
 
@@ -627,8 +626,8 @@ const Citations = () => {
           const parsedResult = JSON.parse(result);
           console.log("Res from api : \n", parsedResult);
           setCitationData(parsedResult);
-          const index = citations.length + 1;
-          saveCitation(index, parsedResult);
+          const key = new Date().getTime(); // Get a timestamp for the key
+          saveCitation(key, parsedResult);
           setLoading(false);
         } catch (error) {
           console.error(error);
@@ -638,8 +637,6 @@ const Citations = () => {
     } else {
       console.warn("Chrome storage API not available.");
     }
-
-    // Get the current tab's URL
   };
 
   const fetchCitations = () => {
