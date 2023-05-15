@@ -49,8 +49,9 @@ const Citations = () => {
 
   const copyToClipboard = (event) => {
     const range = document.createRange();
-    const parentElement = event.target.parentElement; // Get the parent div of the clicked button
-    range.selectNode(parentElement);
+    // Select the citation content div instead of the parent element
+    const citationContent = event.target.parentElement.previousSibling;
+    range.selectNode(citationContent);
     window.getSelection().removeAllRanges();
     window.getSelection().addRange(range);
     document.execCommand("copy");
@@ -718,25 +719,28 @@ const Citations = () => {
               key={index}
               onMouseLeave={resetCopyState}
             >
-              <div className="labelWrapper">
-                <div className="entry">
-                  <span className="entryTitle">{`Title : `}</span>
-                  <span className="entryData">{citation.title}</span>
+              <div className="citationContent">
+                <div className="labelWrapper">
+                  <div className="entry">
+                    <span className="entryTitle">{`Title : `}</span>
+                    <span className="entryData">{citation.title}</span>
+                  </div>
+                  {Object.entries(citation).map(([field, value]) => {
+                    if (field !== "title") {
+                      return (
+                        <div className="entry" key={field}>
+                          <span className="entryTitle">{`${toTitleCase(
+                            field
+                          )} : `}</span>
+                          <span className="entryData">{value}</span>
+                        </div>
+                      );
+                    }
+                    return null;
+                  })}
                 </div>
-                {Object.entries(citation).map(([field, value]) => {
-                  if (field !== "title") {
-                    return (
-                      <div className="entry" key={field}>
-                        <span className="entryTitle">{`${toTitleCase(
-                          field
-                        )} : `}</span>
-                        <span className="entryData">{value}</span>
-                      </div>
-                    );
-                  }
-                  return null;
-                })}
               </div>
+
               <div style={{ display: "flex", flexDirection: "row" }}>
                 <button className="copyButton" onClick={copyToClipboard}>
                   {isCopied ? "Copied!!" : "Copy"}
