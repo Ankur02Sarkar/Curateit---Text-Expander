@@ -1,24 +1,58 @@
 /* global chrome */
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useReducer } from "react";
 import { AiOutlineEdit, AiOutlineDelete } from "react-icons/ai";
 
 const STORAGE_FORM_PREFIX = "curateit_form_";
 
+const chromeStorageAvailable = () =>
+  window.chrome && window.chrome.storage && window.chrome.storage.local;
+
+const initialState = {
+  forms: [],
+  newFormTitle: "",
+  newFormData: "",
+  editingFormKey: null,
+  filteredForms: [],
+  formQuery: "",
+};
+
+const reducer = (state, action) => {
+  switch (action.type) {
+    case "SET_FORMS":
+      return { ...state, forms: action.payload };
+    case "SET_NEW_FORM_TITLE":
+      return { ...state, newFormTitle: action.payload };
+    case "SET_NEW_FORM_DATA":
+      return { ...state, newFormData: action.payload };
+    case "SET_EDITING_FORM_KEY":
+      return { ...state, editingFormKey: action.payload };
+    case "SET_FILTERED_FORMS":
+      return { ...state, filteredForms: action.payload };
+    case "SET_FORM_QUERY":
+      return { ...state, formQuery: action.payload };
+    default:
+      throw new Error(`Unhandled action type: ${action.type}`);
+  }
+};
+
 const Forms = () => {
-  const [forms, setForms] = useState([]);
-  const [newFormTitle, setNewFormTitle] = useState("");
-  const [newFormData, setNewFormData] = useState("");
-  const [editingFormKey, setEditingFormKey] = useState(null);
-  const [filteredForms, setFilteredForms] = useState([]);
-  const [formQuery, setFormQuery] = useState("");
+  const [state, dispatch] = useReducer(reducer, initialState);
+  const {
+    forms,
+    newFormTitle,
+    newFormData,
+    editingFormKey,
+    filteredForms,
+    formQuery,
+  } = state;
 
   const fetchForms = () => {
-    if (window.chrome && window.chrome.storage && window.chrome.storage.local) {
+    if (chromeStorageAvailable()) {
       window.chrome.storage.local.get(null, (items) => {
         const fetchedForms = Object.entries(items).filter(([key]) =>
           key.startsWith(STORAGE_FORM_PREFIX)
         );
-        setForms(fetchedForms);
+        dispatch({ type: "SET_FORMS", payload: fetchedForms });
       });
     } else {
       console.warn("Chrome storage API not available.");
@@ -30,7 +64,7 @@ const Forms = () => {
   }, []);
 
   const addForm = () => {
-    if (window.chrome && window.chrome.storage && window.chrome.storage.local) {
+    if (chromeStorageAvailable()) {
       if (newFormTitle && newFormData) {
         const formattedFormTitle = newFormTitle.startsWith(":")
           ? newFormTitle
@@ -41,9 +75,9 @@ const Forms = () => {
             window.chrome.storage.local.set(
               { [STORAGE_FORM_PREFIX + formattedFormTitle]: newFormData },
               () => {
-                setNewFormTitle("");
-                setNewFormData("");
-                setEditingFormKey(null);
+                dispatch({ type: "SET_NEW_FORM_TITLE", payload: "" });
+                dispatch({ type: "SET_NEW_FORM_DATA", payload: "" });
+                dispatch({ type: "SET_EDITING_FORM_KEY", payload: null });
                 fetchForms();
               }
             );
@@ -52,8 +86,8 @@ const Forms = () => {
           window.chrome.storage.local.set(
             { [STORAGE_FORM_PREFIX + formattedFormTitle]: newFormData },
             () => {
-              setNewFormTitle("");
-              setNewFormData("");
+              dispatch({ type: "SET_NEW_FORM_TITLE", payload: "" });
+              dispatch({ type: "SET_NEW_FORM_DATA", payload: "" });
               fetchForms();
             }
           );
@@ -65,7 +99,7 @@ const Forms = () => {
   };
 
   const deleteForm = (key) => {
-    if (window.chrome && window.chrome.storage && window.chrome.storage.local) {
+    if (chromeStorageAvailable()) {
       window.chrome.storage.local.remove(key, () => {
         fetchForms();
       });
@@ -75,10 +109,16 @@ const Forms = () => {
   };
 
   const editForm = (key) => {
-    if (window.chrome && window.chrome.storage && window.chrome.storage.local) {
-      setNewFormTitle(key.replace(STORAGE_FORM_PREFIX, ""));
-      setNewFormData(forms.find(([k]) => k === key)[1]);
-      setEditingFormKey(key);
+    if (chromeStorageAvailable()) {
+      const formToEdit = forms.find(([k]) => k === key);
+      if (formToEdit) {
+        dispatch({
+          type: "SET_NEW_FORM_TITLE",
+          payload: formToEdit[0].replace(STORAGE_FORM_PREFIX, ""),
+        });
+        dispatch({ type: "SET_NEW_FORM_DATA", payload: formToEdit[1] });
+        dispatch({ type: "SET_EDITING_FORM_KEY", payload: key });
+      }
     } else {
       console.warn("Chrome storage API not available.");
     }
@@ -92,7 +132,7 @@ const Forms = () => {
         value.toLowerCase().includes(formQuery.toLowerCase())
       );
     });
-    setFilteredForms(filtered);
+    dispatch({ type: "SET_FILTERED_FORMS", payload: filtered });
   };
 
   useEffect(() => {
@@ -106,18 +146,24 @@ const Forms = () => {
         type="text"
         placeholder="Search forms..."
         value={formQuery}
-        onChange={(e) => setFormQuery(e.target.value)}
+        onChange={(e) =>
+          dispatch({ type: "SET_FORM_QUERY", payload: e.target.value })
+        }
       />
       <input
         type="text"
         placeholder="Form Title"
         value={newFormTitle}
-        onChange={(e) => setNewFormTitle(e.target.value)}
+        onChange={(e) =>
+          dispatch({ type: "SET_NEW_FORM_TITLE", payload: e.target.value })
+        }
       />
       <textarea
         placeholder="Form Data"
         value={newFormData}
-        onChange={(e) => setNewFormData(e.target.value)}
+        onChange={(e) =>
+          dispatch({ type: "SET_NEW_FORM_DATA", payload: e.target.value })
+        }
         rows={7}
         style={{
           background: "#f7f1f1",

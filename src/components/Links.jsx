@@ -1,62 +1,67 @@
 /* global chrome */
-import React, { useState, useEffect, useRef } from "react";
+import React, { useEffect, useReducer } from "react";
 import { AiOutlineEdit, AiOutlineDelete } from "react-icons/ai";
 
 const STORAGE_LINKS_PREFIX = "curateit_links_";
 
+const initialState = {
+  text: "",
+  url: "",
+  shortcuts: [],
+};
+
+const reducer = (state, action) => {
+  switch (action.type) {
+    case "SET_TEXT":
+      return { ...state, text: action.payload };
+    case "SET_URL":
+      return { ...state, url: action.payload };
+    case "SET_SHORTCUTS":
+      return { ...state, shortcuts: action.payload };
+    default:
+      return state;
+  }
+};
+
 const Links = () => {
-  const [text, setText] = useState("");
-  const [url, setUrl] = useState("");
-  const [shortcuts, setShortcuts] = useState([]);
+  const [state, dispatch] = useReducer(reducer, initialState);
 
   const saveShortcut = (event) => {
     event.preventDefault();
-    if (window.chrome && window.chrome.storage && window.chrome.storage.local) {
-      if (text && url) {
-        window.chrome.storage.local.set(
-          { [STORAGE_LINKS_PREFIX + text]: url },
-          () => {
-            setText("");
-            setUrl("");
-            fetchShortcuts();
-          }
-        );
-      }
-    } else {
-      console.warn("Chrome storage API not available.");
+    if (state.text && state.url) {
+      window.chrome.storage.local.set(
+        { [STORAGE_LINKS_PREFIX + state.text]: state.url },
+        () => {
+          dispatch({ type: "SET_TEXT", payload: "" });
+          dispatch({ type: "SET_URL", payload: "" });
+          fetchShortcuts();
+        }
+      );
     }
   };
 
   const editShortcut = (shortcut) => {
-    setText(shortcut.text);
-    setUrl(shortcut.url);
+    dispatch({ type: "SET_TEXT", payload: shortcut.text });
+    dispatch({ type: "SET_URL", payload: shortcut.url });
   };
 
   const deleteShortcut = (shortcut) => {
-    if (window.chrome && window.chrome.storage && window.chrome.storage.local) {
-      window.chrome.storage.local.remove(
-        STORAGE_LINKS_PREFIX + shortcut.text,
-        fetchShortcuts
-      );
-    } else {
-      console.warn("Chrome storage API not available.");
-    }
+    window.chrome.storage.local.remove(
+      STORAGE_LINKS_PREFIX + shortcut.text,
+      fetchShortcuts
+    );
   };
 
   const fetchShortcuts = () => {
-    if (window.chrome && window.chrome.storage && window.chrome.storage.local) {
-      window.chrome.storage.local.get(null, (items) => {
-        const savedShortcuts = Object.entries(items)
-          .filter(([key]) => key.startsWith(STORAGE_LINKS_PREFIX))
-          .map(([key, value]) => ({
-            text: key.replace(STORAGE_LINKS_PREFIX, ""),
-            url: value,
-          }));
-        setShortcuts(savedShortcuts);
-      });
-    } else {
-      console.warn("Chrome storage API not available.");
-    }
+    window.chrome.storage.local.get(null, (items) => {
+      const savedShortcuts = Object.entries(items)
+        .filter(([key]) => key.startsWith(STORAGE_LINKS_PREFIX))
+        .map(([key, value]) => ({
+          text: key.replace(STORAGE_LINKS_PREFIX, ""),
+          url: value,
+        }));
+      dispatch({ type: "SET_SHORTCUTS", payload: savedShortcuts });
+    });
   };
 
   useEffect(() => {
@@ -69,18 +74,22 @@ const Links = () => {
         <label htmlFor="newitem">Save your Links</label>
         <input
           placeholder="URL"
-          value={url}
-          onChange={(e) => setUrl(e.target.value)}
+          value={state.url}
+          onChange={(e) =>
+            dispatch({ type: "SET_URL", payload: e.target.value })
+          }
         />
         <input
           placeholder="Text"
-          value={text}
-          onChange={(e) => setText(e.target.value)}
+          value={state.text}
+          onChange={(e) =>
+            dispatch({ type: "SET_TEXT", payload: e.target.value })
+          }
         />
         <button onClick={(e) => saveShortcut(e)}>Save</button>
       </form>
       <ul>
-        {shortcuts.map((shortcut, index) => (
+        {state.shortcuts.map((shortcut, index) => (
           <li className="" key={index}>
             <div className="labelWrapper">
               <span className="label shortcutText">{shortcut.text}</span>
