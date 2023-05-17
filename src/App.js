@@ -10,59 +10,57 @@ import Links from "./components/Links";
 import Text from "./components/Text";
 import "./App.css";
 
+const COMPONENT_MAP = {
+  saveLinks: Links,
+  saveText: Text,
+  saveForms: Forms,
+  saveCitations: Citations,
+};
+
 function App() {
   const [displayDiv, setDisplayDiv] = useState(null);
 
-  const handleLinkBtnClick = () => {
-    setDisplayDiv("saveLinks");
+  const handleClick = (component) => () => {
+    setDisplayDiv(component);
   };
 
-  const handleTextBtnClick = () => {
-    setDisplayDiv("saveText");
-  };
-
-  const handleFormBtnClick = () => {
-    setDisplayDiv("saveForms");
-  };
-  const handleCitationBtnClick = () => {
-    setDisplayDiv("saveCitations");
-  };
+  const DisplayedComponent = COMPONENT_MAP[displayDiv];
 
   return (
-    <>
-      <main id="todolist">
-        <h1>
-          Curateit
-          <span>Build your personal corner on the web</span>
-        </h1>
-        <div className="btn-wrapper">
-          <TbUnlink
-            className="btnLink"
-            aria-label="Link"
-            onClick={handleLinkBtnClick}
-            size={37}
-          />
+    <main id="todolist">
+      <h1>
+        Curateit
+        <span>Build your personal corner on the web</span>
+      </h1>
+      <div className="btn-wrapper">
+        <TbUnlink
+          className="btnLink"
+          aria-label="Link"
+          onClick={handleClick("saveLinks")}
+          size={37}
+        />
 
-          <TbTextRecognition
-            className="btnText"
-            onClick={handleTextBtnClick}
-            size={37}
-            data-tooltip="Text Recognition"
-          />
+        <TbTextRecognition
+          className="btnText"
+          onClick={handleClick("saveText")}
+          size={37}
+          data-tooltip="Text Recognition"
+        />
 
-          <TbForms className="btnForm" onClick={handleFormBtnClick} size={37} />
-          <CiTextAlignCenter
-            className="btnCitation"
-            onClick={handleCitationBtnClick}
-            size={37}
-          />
-        </div>
-        {displayDiv === "saveLinks" && <Links />}
-        {displayDiv === "saveText" && <Text />}
-        {displayDiv === "saveForms" && <Forms />}
-        {displayDiv === "saveCitations" && <Citations />}
-      </main>
-    </>
+        <TbForms
+          className="btnForm"
+          onClick={handleClick("saveForms")}
+          size={37}
+        />
+
+        <CiTextAlignCenter
+          className="btnCitation"
+          onClick={handleClick("saveCitations")}
+          size={37}
+        />
+      </div>
+      {DisplayedComponent && <DisplayedComponent />}
+    </main>
   );
 }
 

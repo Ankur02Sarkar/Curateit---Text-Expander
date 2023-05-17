@@ -1,6 +1,5 @@
 /* global chrome */
-import React, { useState, useEffect, useRef } from "react";
-
+import React, { useEffect, useRef, useReducer } from "react";
 import { Configuration, OpenAIApi } from "openai";
 
 const STORAGE_CITATION_PREFIX = "curateit_citation_";
@@ -10,32 +9,41 @@ const configuration = new Configuration({
 });
 
 const openai = new OpenAIApi(configuration);
-const Citations = () => {
-  const [citationResult, setCitationResult] = useState("");
-  const [citationData, setCitationData] = useState(null);
-  const [citations, setCitations] = useState([]);
-  const [citeRes, setCiteRes] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [currentDate, setCurrentDate] = useState("");
-  const [isCopied, setIsCopied] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [searchTerm, setSearchTerm] = useState("");
 
-  function toTitleCase(str) {
-    return str
-      .replace(/_/g, " ") // replace underscores with spaces
-      .replace(/\w\S*/g, function (txt) {
-        return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
-      });
+const reducer = (state, action) => {
+  switch (action.type) {
+    case "SET_LOADING":
+      return { ...state, loading: action.payload };
+    case "SET_CITATIONS":
+      return { ...state, citations: action.payload };
+    case "SET_CITATION_RESULT":
+      return { ...state, citationResult: action.payload };
+    case "SET_COPY_STATE":
+      return { ...state, isCopied: action.payload };
+    case "SET_SEARCH_TERM":
+      return { ...state, searchTerm: action.payload };
+    default:
+      return state;
   }
+};
 
-  const handleSearchChange = (event) => {
-    setSearchTerm(event.target.value);
-  };
+const chromeStorageAvailable = () =>
+  typeof chrome !== "undefined" && chrome.storage;
+
+const Citations = () => {
+  const [state, dispatch] = useReducer(reducer, {
+    loading: false,
+    citations: [],
+    citationResult: "",
+    isCopied: false,
+    searchTerm: "",
+  });
+
+  const citationStyleRef = useRef();
 
   const saveCitation = (key, data) => {
-    if (window.chrome && window.chrome.storage && window.chrome.storage.local) {
-      window.chrome.storage.local.set(
+    if (chromeStorageAvailable()) {
+      chrome.storage.local.set(
         { [`${STORAGE_CITATION_PREFIX}${key}`]: data },
         () => {
           console.log("Citation saved.");
@@ -49,18 +57,17 @@ const Citations = () => {
 
   const copyToClipboard = (event) => {
     const range = document.createRange();
-    // Select the citation content div instead of the parent element
     const citationContent = event.target.parentElement.previousSibling;
     range.selectNode(citationContent);
     window.getSelection().removeAllRanges();
     window.getSelection().addRange(range);
     document.execCommand("copy");
     window.getSelection().removeAllRanges();
-    setIsCopied(true);
+    dispatch({ type: "SET_COPY_STATE", payload: true });
   };
 
   const resetCopyState = () => {
-    setIsCopied(false);
+    dispatch({ type: "SET_COPY_STATE", payload: false });
   };
 
   const monthNames = [
@@ -590,21 +597,20 @@ const Citations = () => {
     const formattedDate = `${today.getDate()} ${getMonthName(
       today.getMonth()
     )} ${today.getFullYear()}`;
-    setCurrentDate(formattedDate);
+    return formattedDate;
   };
 
   useEffect(() => {
     setCurrentDateValue();
   }, []);
 
-  const citationStyleRef = useRef();
-
   const handleCiteButtonClick = async () => {
-    setLoading(true);
+    dispatch({ type: "SET_LOADING", payload: true });
     const selectedStyle = citationStyleRef.current.value;
-    if (typeof chrome !== "undefined" && chrome.storage) {
+    if (chromeStorageAvailable()) {
       chrome.tabs.query({ active: true, currentWindow: true }, async (tabs) => {
         const citeUrl = tabs[0].url;
+        const currentDate = setCurrentDateValue();
 
         try {
           const completion = await openai.createChatCompletion({
@@ -622,16 +628,17 @@ const Citations = () => {
           });
 
           const result = completion.data.choices[0].message.content.trim();
-          setCiteRes(result);
           const parsedResult = JSON.parse(result);
           console.log("Res from api : \n", parsedResult);
-          setCitationData(parsedResult);
-          const key = new Date().getTime(); // Get a timestamp for the key
+          const key = new Date().getTime();
           saveCitation(key, parsedResult);
-          setLoading(false);
+          dispatch({ type: "SET_LOADING", payload: false });
         } catch (error) {
           console.error(error);
-          setCitationResult("Error: Failed to get a response");
+          dispatch({
+            type: "SET_CITATION_RESULT",
+            payload: "Error: Failed to get a response",
+          });
         }
       });
     } else {
@@ -640,17 +647,12 @@ const Citations = () => {
   };
 
   const fetchCitations = () => {
-    if (window.chrome && window.chrome.storage && window.chrome.storage.local) {
-      window.chrome.storage.local.get(null, (items) => {
-        const fetchedCitations = Object.entries(items)
-          .filter(([key]) => key.startsWith(STORAGE_CITATION_PREFIX))
-          .filter(
-            ([_, value]) =>
-              !searchQuery ||
-              value.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-              value.citation.toLowerCase().includes(searchQuery.toLowerCase())
-          );
-        setCitations(fetchedCitations);
+    if (chromeStorageAvailable()) {
+      chrome.storage.local.get(null, (items) => {
+        const fetchedCitations = Object.entries(items).filter(([key]) =>
+          key.startsWith(STORAGE_CITATION_PREFIX)
+        );
+        dispatch({ type: "SET_CITATIONS", payload: fetchedCitations });
       });
     } else {
       console.warn("Chrome storage API not available.");
@@ -659,11 +661,11 @@ const Citations = () => {
 
   useEffect(() => {
     fetchCitations();
-  }, []);
+  }, [state.searchTerm]);
 
   const removeCitation = (key) => {
-    if (window.chrome && window.chrome.storage && window.chrome.storage.local) {
-      window.chrome.storage.local.remove(key, () => {
+    if (chromeStorageAvailable()) {
+      chrome.storage.local.remove(key, () => {
         console.log("Citation removed.");
         fetchCitations();
       });
@@ -696,18 +698,20 @@ const Citations = () => {
       <input
         type="text"
         placeholder="Search citations..."
-        value={searchTerm}
-        onChange={handleSearchChange}
+        value={state.searchTerm}
+        onChange={(event) =>
+          dispatch({ type: "SET_SEARCH_TERM", payload: event.target.value })
+        }
       />
 
       <ul className="listWrapper">
-        {loading && <h3>Gathering Data...</h3>}
+        {state.loading && <h3>Gathering Data...</h3>}
 
-        {citations
+        {state.citations
           .filter(([key, citation]) => {
             return citation.title
               .toLowerCase()
-              .includes(searchTerm.toLowerCase());
+              .includes(state.searchTerm.toLowerCase());
           })
           .map(([key, citation], index) => (
             <li
@@ -720,33 +724,52 @@ const Citations = () => {
                 <div className="labelWrapper">
                   <div className="entry">
                     <span className="entryTitle">{`Title : `}</span>
-                    <span className="entryData">{citation.title}</span>
+                    <span className="entryContent">{`${citation.title}`}</span>
                   </div>
-                  {Object.entries(citation).map(([field, value]) => {
-                    if (field !== "title") {
-                      return (
-                        <div className="entry" key={field}>
-                          <span className="entryTitle">{`${toTitleCase(
-                            field
-                          )} : `}</span>
-                          <span className="entryData">{value}</span>
-                        </div>
-                      );
-                    }
-                    return null;
-                  })}
+                  <div className="entry">
+                    <span className="entryTitle">{`URL : `}</span>
+                    <span className="entryContent">{`${citation.url}`}</span>
+                  </div>
+                  <div className="entry">
+                    <span className="entryTitle">{`Description : `}</span>
+                    <span className="entryContent">{`${citation.description}`}</span>
+                  </div>
+                  <div className="entry">
+                    <span className="entryTitle">{`Author : `}</span>
+                    <span className="entryContent">{`${citation.author}`}</span>
+                  </div>
+                  <div className="entry">
+                    <span className="entryTitle">{`Accessed Date : `}</span>
+                    <span className="entryContent">{`${citation.accessed_date}`}</span>
+                  </div>
+                  <div className="entry">
+                    <span className="entryTitle">{`Credibility : `}</span>
+                    <span className="entryContent">{`${citation.credibility}`}</span>
+                  </div>
+                  <div className="entry">
+                    <span className="entryTitle">{`Citation : `}</span>
+                    <span className="entryContent">{`${citation.citation}`}</span>
+                  </div>
+                  <div className="entry">
+                    <span className="entryTitle">{`Citation Format : `}</span>
+                    <span className="entryContent">{`${citation.citation_format}`}</span>
+                  </div>
                 </div>
               </div>
 
-              <div style={{ display: "flex", flexDirection: "row" }}>
-                <button className="copyButton" onClick={copyToClipboard}>
-                  {isCopied ? "Copied!!" : "Copy"}
+              <div className="buttonWrapper">
+                <button
+                  className="copyButton"
+                  onClick={copyToClipboard}
+                  onMouseDown={(event) => event.preventDefault()}
+                >
+                  {state.isCopied ? "Copied!" : "Copy"}
                 </button>
                 <button
-                  className="deleteButton"
+                  className="removeButton"
                   onClick={() => removeCitation(key)}
                 >
-                  Delete
+                  Remove
                 </button>
               </div>
             </li>
