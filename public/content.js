@@ -90,7 +90,7 @@ function getTagForCurrentWebsite() {
   } else if (currentUrl.includes("https://mail.google.com/")) {
     return "div";
   } else {
-    return "div";
+    return "span";
   }
 }
 
