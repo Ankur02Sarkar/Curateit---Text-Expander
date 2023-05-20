@@ -23,12 +23,16 @@ const FlashCards = () => {
     setLoading(true);
     try {
       const completion = await openai.createChatCompletion({
-        model: "gpt-4",
+        model: "gpt-3.5-turbo",
         messages: [
           {
             role: "user",
             content: `Create short questions and answers based on the following context. Remember that the 
-            answers must be within the context. Your response should strictly be JSON data of the following 
+            answers must be within the context. The Context is :-
+
+            ${transcript}
+            
+            Your response should strictly be JSON data of the following 
             format :-
             [
               {
@@ -45,15 +49,16 @@ const FlashCards = () => {
               }
             ]
 
-            The Context is :-
-            ${transcript}
+            Remember that the JSON Format should be STRICTLY like the one given above and not some different format. 
             `,
           },
         ],
       });
 
       const result = completion.data.choices[0].message.content.trim();
+      console.log("res is : ", result);
       const parsedResult = JSON.parse(result);
+      console.log("parsed res is : ", parsedResult);
       setQuizData(parsedResult);
       setLoading(false);
     } catch (error) {
