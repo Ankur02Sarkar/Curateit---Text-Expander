@@ -3,11 +3,13 @@
 import React, { useState } from "react";
 import { TbUnlink, TbTextRecognition, TbForms } from "react-icons/tb";
 import { CiTextAlignCenter } from "react-icons/ci";
+import { MdOutlineQuiz } from "react-icons/md";
 
 import Citations from "./components/Citations";
 import Forms from "./components/Forms";
 import Links from "./components/Links";
 import Text from "./components/Text";
+import FlashCards from "./components/FlashCards";
 import "./App.css";
 
 const COMPONENT_MAP = {
@@ -15,6 +17,7 @@ const COMPONENT_MAP = {
   saveText: Text,
   saveForms: Forms,
   saveCitations: Citations,
+  saveFlashCards: FlashCards,
 };
 
 function App() {
@@ -56,6 +59,11 @@ function App() {
         <CiTextAlignCenter
           className="btnCitation"
           onClick={handleClick("saveCitations")}
+          size={37}
+        />
+        <MdOutlineQuiz
+          className="btnCitation"
+          onClick={handleClick("saveFlashCards")}
           size={37}
         />
       </div>

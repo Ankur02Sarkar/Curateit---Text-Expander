@@ -155,8 +155,6 @@ button {
   height: 3rem;
 }
 
-
-
 .togglebutton-wrapper {
   margin-top: 1em;
 }
@@ -244,7 +242,7 @@ button {
 
 .btn-wrapper {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr 1fr;
+  grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
   justify-items: center;
   margin: 20px auto;
   ;

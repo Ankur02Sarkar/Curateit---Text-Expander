@@ -25,3 +25,6 @@ yarn-error.log*
 
 .env
 tmp.js
+YouTube_Summary_with_ChatGPT/
+test.json
+__pycache__/
