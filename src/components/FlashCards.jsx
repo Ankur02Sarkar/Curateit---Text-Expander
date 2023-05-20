@@ -1,3 +1,4 @@
+/* global chrome */
 import React, { useEffect, useState } from "react";
 import { Configuration, OpenAIApi } from "openai";
 import "./FlashCards.css";
@@ -12,22 +13,42 @@ const FlashCards = () => {
   const [transcript, setTranscript] = useState("");
   const [quizData, setQuizData] = useState([]);
   const [loading, setLoading] = useState(false);
-  useEffect(() => {
-    fetch("http://localhost:8000/transcript/RqlYaezN3zk")
-      .then((response) => response.json())
-      .then((data) => setTranscript(data.transcription))
-      .catch((error) => console.error("Error:", error));
-  }, []);
+  const [isYoutube, setIsYoutube] = useState(true);
 
   const createQuestionAnswers = async () => {
     setLoading(true);
-    try {
-      const completion = await openai.createChatCompletion({
-        model: "gpt-3.5-turbo",
-        messages: [
-          {
-            role: "user",
-            content: `Create short questions and answers based on the following context. Remember that the 
+    chrome.tabs.query({ active: true, currentWindow: true }, async (tabs) => {
+      const siteUrl = tabs[0].url;
+      console.log("url : ", siteUrl);
+      if (!siteUrl.includes("youtube.com")) {
+        console.log("website is not youtube");
+        setIsYoutube(false); // Set isYoutube to false
+        setLoading(false);
+        return;
+      }
+      setIsYoutube(true);
+
+      // Extract YouTube video ID
+      const url = new URL(siteUrl);
+      const videoId = new URLSearchParams(url.search).get("v");
+      console.log("YouTube video ID: ", videoId);
+
+      try {
+        const response = await fetch(
+          `http://localhost:8000/transcript/${videoId}`
+        );
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+        setTranscript(data.transcription);
+
+        const completion = await openai.createChatCompletion({
+          model: "gpt-3.5-turbo",
+          messages: [
+            {
+              role: "user",
+              content: `Create short questions and answers based on the following context. Remember that the 
             answers must be within the context. The Context is :-
 
             ${transcript}
@@ -51,25 +72,28 @@ const FlashCards = () => {
 
             Remember that the JSON Format should be STRICTLY like the one given above and not some different format. 
             `,
-          },
-        ],
-      });
+            },
+          ],
+        });
 
-      const result = completion.data.choices[0].message.content.trim();
-      console.log("res is : ", result);
-      const parsedResult = JSON.parse(result);
-      console.log("parsed res is : ", parsedResult);
-      setQuizData(parsedResult);
-      setLoading(false);
-    } catch (error) {
-      console.error(error);
-    }
+        const result = completion.data.choices[0].message.content.trim();
+        console.log("res is : ", result);
+        const parsedResult = JSON.parse(result);
+        console.log("parsed res is : ", parsedResult);
+        setQuizData(parsedResult);
+        setLoading(false);
+      } catch (error) {
+        console.error(error);
+        // Handle error appropriately. Maybe set some state and show the error message in the UI.
+      }
+    });
   };
 
   return (
     <div className="flashCardsWrapper">
       <button onClick={createQuestionAnswers}>Generate Flashcards</button>
       {loading && <h3>Generating Questions...</h3>}
+      {!isYoutube && <h3>Website is not YouTube</h3>}
       {quizData && (
         <div className="flashCards">
           {quizData.map((item, index) => (
