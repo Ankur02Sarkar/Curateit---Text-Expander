@@ -166,7 +166,7 @@ const Forms = () => {
         }
         rows={7}
         style={{
-          background: "#f7f1f1",
+          // background: "#f7f1f1",
           border: "none",
           width: "100%",
           fontSize: "17px",

@@ -29,14 +29,16 @@ const Links = () => {
   const saveShortcut = (event) => {
     event.preventDefault();
     if (state.text && state.url) {
-      window.chrome.storage.local.set(
-        { [STORAGE_LINKS_PREFIX + state.text]: state.url },
-        () => {
-          dispatch({ type: "SET_TEXT", payload: "" });
-          dispatch({ type: "SET_URL", payload: "" });
-          fetchShortcuts();
-        }
-      );
+      if (window.chrome && chrome.storage && chrome.storage.local) {
+        window.chrome.storage.local.set(
+          { [STORAGE_LINKS_PREFIX + state.text]: state.url },
+          () => {
+            dispatch({ type: "SET_TEXT", payload: "" });
+            dispatch({ type: "SET_URL", payload: "" });
+            fetchShortcuts();
+          }
+        );
+      }
     }
   };
 
@@ -46,22 +48,26 @@ const Links = () => {
   };
 
   const deleteShortcut = (shortcut) => {
-    window.chrome.storage.local.remove(
-      STORAGE_LINKS_PREFIX + shortcut.text,
-      fetchShortcuts
-    );
+    if (window.chrome && chrome.storage && chrome.storage.local) {
+      window.chrome.storage.local.remove(
+        STORAGE_LINKS_PREFIX + shortcut.text,
+        fetchShortcuts
+      );
+    }
   };
 
   const fetchShortcuts = () => {
-    window.chrome.storage.local.get(null, (items) => {
-      const savedShortcuts = Object.entries(items)
-        .filter(([key]) => key.startsWith(STORAGE_LINKS_PREFIX))
-        .map(([key, value]) => ({
-          text: key.replace(STORAGE_LINKS_PREFIX, ""),
-          url: value,
-        }));
-      dispatch({ type: "SET_SHORTCUTS", payload: savedShortcuts });
-    });
+    if (window.chrome && chrome.storage && chrome.storage.local) {
+      window.chrome.storage.local.get(null, (items) => {
+        const savedShortcuts = Object.entries(items)
+          .filter(([key]) => key.startsWith(STORAGE_LINKS_PREFIX))
+          .map(([key, value]) => ({
+            text: key.replace(STORAGE_LINKS_PREFIX, ""),
+            url: value,
+          }));
+        dispatch({ type: "SET_SHORTCUTS", payload: savedShortcuts });
+      });
+    }
   };
 
   useEffect(() => {

@@ -15,6 +15,13 @@ const FlashCards = () => {
   const [loading, setLoading] = useState(false);
   const [isYoutube, setIsYoutube] = useState(true);
 
+  function extractJSON(str) {
+    let startIndex = str.indexOf("[");
+    let endIndex = str.lastIndexOf("]") + 1;
+    let jsonStr = str.substring(startIndex, endIndex);
+    return jsonStr;
+  }
+
   const createQuestionAnswers = async () => {
     setLoading(true);
     chrome.tabs.query({ active: true, currentWindow: true }, async (tabs) => {
@@ -77,14 +84,14 @@ const FlashCards = () => {
         });
 
         const result = completion.data.choices[0].message.content.trim();
-        console.log("res is : ", result);
-        const parsedResult = JSON.parse(result);
+        const jsonResult = extractJSON(result);
+        console.log("res is : ", jsonResult);
+        const parsedResult = JSON.parse(jsonResult);
         console.log("parsed res is : ", parsedResult);
         setQuizData(parsedResult);
         setLoading(false);
       } catch (error) {
         console.error(error);
-        // Handle error appropriately. Maybe set some state and show the error message in the UI.
       }
     });
   };
@@ -96,44 +103,6 @@ const FlashCards = () => {
       {!isYoutube && <h3>Website is not YouTube</h3>}
       {quizData && (
         <div className="flashCards">
-          <label>
-            <input type="checkbox" />
-            <div className="flip-card">
-              <div className="front">
-                <h1>Question</h1>
-                <hr />
-                <p>gfgfgfgffggffdgfgfdgddfgdfgdfgdfgddgdggdfgfg</p>
-                <hr />
-                <p className="click">Show Answer</p>
-              </div>
-              <div className="back">
-                <h1>Answer</h1>
-                <hr />
-                <p>sssssssssssssssssssddsssssssssssssssssssssss</p>
-                <hr />
-                <p className="click">Show Question</p>
-              </div>
-            </div>
-          </label>
-          <label>
-            <input type="checkbox" />
-            <div className="flip-card">
-              <div className="front">
-                <h1>Question</h1>
-                <hr />
-                <p>gfgfgfgffggffdgfgfdgddfgdfgdfgdfgddgdggdfgfg</p>
-                <hr />
-                <p className="click">Show Answer</p>
-              </div>
-              <div className="back">
-                <h1>Answer</h1>
-                <hr />
-                <p>sssssssssssssssssssddsssssssssssssssssssssss</p>
-                <hr />
-                <p className="click">Show Question</p>
-              </div>
-            </div>
-          </label>
           {quizData.map((item, index) => (
             <label key={index}>
               <input type="checkbox" />

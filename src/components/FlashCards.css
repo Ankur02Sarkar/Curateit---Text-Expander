@@ -1,4 +1,4 @@
-h1 {
+.flashCards h1 {
 	font-size: 23px !important;
 }
 
@@ -35,26 +35,30 @@ h1 {
 }
 
 .flip-card .back {
-	transform: rotateX(180deg);
+	transform: rotateY(180deg);
 	color: #000;
 	background: #fff;
 }
 
 label:hover .flip-card {
-	transform: rotateX(2deg);
-	box-shadow: 0 20px 20px rgba(50, 60, 60, 0.2);
+	transform: rotateY(2deg);
+	/* box-shadow: 0 20px 20px rgba(50, 60, 60, 0.2); */
 }
 
-input {
+.flashCards input {
 	display: none;
 }
 
 :checked+.flip-card {
-	transform: rotateX(180deg);
+	transform: rotateY(180deg);
 }
 
 label:hover :checked+.flip-card {
-	transform: rotateX(175deg);
+	transform: rotateY(175deg);
+	/* box-shadow: 0 20px 20px rgba(255, 255, 255, 0.2); */
+}
+
+.front:hover .back:hover {
 	box-shadow: 0 20px 20px rgba(255, 255, 255, 0.2);
 }
 
@@ -96,7 +100,7 @@ label:hover :checked+.flip-card {
 	margin: 30px 0 0 0;
 }
 
-hr {
+.flashCards hr {
 	width: 180px;
 	margin: 15px auto 10px auto;
 }
