@@ -2,7 +2,7 @@ h1 {
 	font-size: 23px !important;
 }
 
-label {
+.flashCards label {
 	display: block;
 	min-width: fit-content !important;
 	width: 470px;

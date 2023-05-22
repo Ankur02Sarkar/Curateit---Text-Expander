@@ -96,6 +96,44 @@ const FlashCards = () => {
       {!isYoutube && <h3>Website is not YouTube</h3>}
       {quizData && (
         <div className="flashCards">
+          <label>
+            <input type="checkbox" />
+            <div className="flip-card">
+              <div className="front">
+                <h1>Question</h1>
+                <hr />
+                <p>gfgfgfgffggffdgfgfdgddfgdfgdfgdfgddgdggdfgfg</p>
+                <hr />
+                <p className="click">Show Answer</p>
+              </div>
+              <div className="back">
+                <h1>Answer</h1>
+                <hr />
+                <p>sssssssssssssssssssddsssssssssssssssssssssss</p>
+                <hr />
+                <p className="click">Show Question</p>
+              </div>
+            </div>
+          </label>
+          <label>
+            <input type="checkbox" />
+            <div className="flip-card">
+              <div className="front">
+                <h1>Question</h1>
+                <hr />
+                <p>gfgfgfgffggffdgfgfdgddfgdfgdfgdfgddgdggdfgfg</p>
+                <hr />
+                <p className="click">Show Answer</p>
+              </div>
+              <div className="back">
+                <h1>Answer</h1>
+                <hr />
+                <p>sssssssssssssssssssddsssssssssssssssssssssss</p>
+                <hr />
+                <p className="click">Show Question</p>
+              </div>
+            </div>
+          </label>
           {quizData.map((item, index) => (
             <label key={index}>
               <input type="checkbox" />
