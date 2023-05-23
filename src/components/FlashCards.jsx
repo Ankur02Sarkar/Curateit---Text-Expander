@@ -13,16 +13,23 @@ const FlashCards = () => {
   const [transcript, setTranscript] = useState("");
   const [quizData, setQuizData] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [isYoutube, setIsYoutube] = useState();
+  const [isYoutube, setIsYoutube] = useState("");
   const [siteUrl, setSiteUrl] = useState("");
+  const [text, setText] = useState("");
 
-  useEffect(() => {
+  const checkYoutube = async () => {
+    setIsYoutube("");
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-      setSiteUrl(tabs[0].url);
-      console.log("url from useeffect : ", siteUrl);
-      setIsYoutube(siteUrl.includes("youtube.com"));
+      let currentUrl = tabs[0].url;
+      setSiteUrl(currentUrl);
+      console.log("url from useeffect : ", currentUrl);
+      if (currentUrl.includes("youtube.com")) {
+        setIsYoutube("Yes");
+      } else {
+        setIsYoutube("No");
+      }
     });
-  }, []);
+  };
 
   function extractJSON(str) {
     let startIndex = str.indexOf("[");
@@ -57,26 +64,30 @@ const FlashCards = () => {
           messages: [
             {
               role: "user",
-              content: `Please create 10 set of short questions and answers based on the following context. 
-The answers must be within the context.
+              content: `Create short questions and answers based on the following context. Remember that the 
+            answers must be within the context. The Context is :-
 
-Context:  ${transcript}
+            ${transcript}
+            
+            Your response should strictly be JSON data of the following 
+            format :-
+            [
+              {
+                  "question": "Question 1",
+                  "answer": "Answer 1"
+              },
+              {
+                  "question": "Question 2",
+                  "answer": "Answer 2"
+              },
+              {
+                  "question": "Question 3",
+                  "answer": "Answer 3"
+              }
+            ]
 
-JSON response format:
-[
-  {
-      "question": "What is an epiphany in Chekhov's short stories?",
-      "answer": "A sudden realization or moment of enlightenment experienced by the protagonist."
-  },
-  {
-      "question": "What is the plot of 'The Student'?",
-      "answer": "A young seminary student meets two widowed women on Good Friday and tells them the story of Peter's denial of Jesus, which reawakens painful memories in the women."
-  },
-  {
-      "question": "What is the emphasis in 'The Student'?",
-      "answer": "More on character and emotion than plot and incident."
-  }
-]  `,
+            Remember that the JSON Format should be STRICTLY like the one given above and not some different format. 
+            `,
             },
           ],
         });
@@ -96,7 +107,6 @@ JSON response format:
 
   const handleTextExtraction = async () => {
     setLoading(true);
-    // const siteUrl = "https://applitools.com/front-endtestfest-june-2023/";
     console.log("url from handleTextExtraction : ", siteUrl);
     var encodedUrl = encodeURIComponent(siteUrl);
     console.log(encodedUrl);
@@ -105,11 +115,50 @@ JSON response format:
         `http://localhost:8000/extract_article/${encodedUrl}`
       )
         .then((response) => response.json())
-        .then((data) => console.log("data from api : ", data.text))
+        .then((data) => setText(data.text))
         .catch((error) => {
           console.error("Error:", error);
         });
 
+      const completion = await openai.createChatCompletion({
+        model: "gpt-3.5-turbo",
+        messages: [
+          {
+            role: "user",
+            content: `Create short questions and answers based on the following context. Remember that the 
+            answers must be within the context. The Context is :-
+
+            ${text}
+            
+            Your response should strictly be JSON data of the following 
+            format :-
+            [
+              {
+                  "question": "Question 1",
+                  "answer": "Answer 1"
+              },
+              {
+                  "question": "Question 2",
+                  "answer": "Answer 2"
+              },
+              {
+                  "question": "Question 3",
+                  "answer": "Answer 3"
+              }
+            ]
+
+            Remember that the JSON Format should be STRICTLY like the one given above and not some different format. 
+            `,
+          },
+        ],
+      });
+
+      const result = completion.data.choices[0].message.content.trim();
+      const jsonResult = extractJSON(result);
+      console.log("res is : ", jsonResult);
+      const parsedResult = JSON.parse(jsonResult);
+      console.log("parsed res is : ", parsedResult);
+      setQuizData(parsedResult);
       setLoading(false);
     } catch (error) {
       console.error(error);
@@ -118,13 +167,13 @@ JSON response format:
 
   return (
     <div className="flashCardsWrapper">
-      {isYoutube ? (
+      {isYoutube === "" ? <button onClick={checkYoutube}>Start</button> : null}
+      {isYoutube === "Yes" ? (
         <button onClick={createQuestionAnswers}>Generate Flashcards</button>
-      ) : (
+      ) : isYoutube === "No" ? (
         <button onClick={handleTextExtraction}>Extract Text</button>
-      )}
+      ) : null}
       {loading && <h3>Creating Flashcards...</h3>}
-      {/* {!isYoutube && <h3>Website is not YouTube</h3>} */}
       {quizData && (
         <div className="flashCards">
           {quizData.map((item, index) => (
