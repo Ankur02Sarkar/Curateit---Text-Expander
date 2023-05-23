@@ -13,7 +13,16 @@ const FlashCards = () => {
   const [transcript, setTranscript] = useState("");
   const [quizData, setQuizData] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [isYoutube, setIsYoutube] = useState(true);
+  const [isYoutube, setIsYoutube] = useState();
+  const [siteUrl, setSiteUrl] = useState("");
+
+  useEffect(() => {
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+      setSiteUrl(tabs[0].url);
+      console.log("url from useeffect : ", siteUrl);
+      setIsYoutube(siteUrl.includes("youtube.com"));
+    });
+  }, []);
 
   function extractJSON(str) {
     let startIndex = str.indexOf("[");
@@ -26,14 +35,7 @@ const FlashCards = () => {
     setLoading(true);
     chrome.tabs.query({ active: true, currentWindow: true }, async (tabs) => {
       const siteUrl = tabs[0].url;
-      console.log("url : ", siteUrl);
-      if (!siteUrl.includes("youtube.com")) {
-        console.log("website is not youtube");
-        setIsYoutube(false); // Set isYoutube to false
-        setLoading(false);
-        return;
-      }
-      setIsYoutube(true);
+      console.log("url from createQuestionAnswers : ", siteUrl);
 
       // Extract YouTube video ID
       const url = new URL(siteUrl);
@@ -55,30 +57,26 @@ const FlashCards = () => {
           messages: [
             {
               role: "user",
-              content: `Create short questions and answers based on the following context. Remember that the 
-            answers must be within the context. The Context is :-
+              content: `Please create 10 set of short questions and answers based on the following context. 
+The answers must be within the context.
 
-            ${transcript}
-            
-            Your response should strictly be JSON data of the following 
-            format :-
-            [
-              {
-                  "question": "Question 1",
-                  "answer": "Answer 1"
-              },
-              {
-                  "question": "Question 2",
-                  "answer": "Answer 2"
-              },
-              {
-                  "question": "Question 3",
-                  "answer": "Answer 3"
-              }
-            ]
+Context:  ${transcript}
 
-            Remember that the JSON Format should be STRICTLY like the one given above and not some different format. 
-            `,
+JSON response format:
+[
+  {
+      "question": "What is an epiphany in Chekhov's short stories?",
+      "answer": "A sudden realization or moment of enlightenment experienced by the protagonist."
+  },
+  {
+      "question": "What is the plot of 'The Student'?",
+      "answer": "A young seminary student meets two widowed women on Good Friday and tells them the story of Peter's denial of Jesus, which reawakens painful memories in the women."
+  },
+  {
+      "question": "What is the emphasis in 'The Student'?",
+      "answer": "More on character and emotion than plot and incident."
+  }
+]  `,
             },
           ],
         });
@@ -96,11 +94,37 @@ const FlashCards = () => {
     });
   };
 
+  const handleTextExtraction = async () => {
+    setLoading(true);
+    // const siteUrl = "https://applitools.com/front-endtestfest-june-2023/";
+    console.log("url from handleTextExtraction : ", siteUrl);
+    var encodedUrl = encodeURIComponent(siteUrl);
+    console.log(encodedUrl);
+    try {
+      const response = await fetch(
+        `http://localhost:8000/extract_article/${encodedUrl}`
+      )
+        .then((response) => response.json())
+        .then((data) => console.log("data from api : ", data.text))
+        .catch((error) => {
+          console.error("Error:", error);
+        });
+
+      setLoading(false);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   return (
     <div className="flashCardsWrapper">
-      <button onClick={createQuestionAnswers}>Generate Flashcards</button>
-      {loading && <h3>Generating Questions...</h3>}
-      {!isYoutube && <h3>Website is not YouTube</h3>}
+      {isYoutube ? (
+        <button onClick={createQuestionAnswers}>Generate Flashcards</button>
+      ) : (
+        <button onClick={handleTextExtraction}>Extract Text</button>
+      )}
+      {loading && <h3>Creating Flashcards...</h3>}
+      {/* {!isYoutube && <h3>Website is not YouTube</h3>} */}
       {quizData && (
         <div className="flashCards">
           {quizData.map((item, index) => (
