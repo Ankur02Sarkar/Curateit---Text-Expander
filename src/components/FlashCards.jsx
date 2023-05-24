@@ -16,6 +16,7 @@ const FlashCards = () => {
   const [isYoutube, setIsYoutube] = useState("");
   const [siteUrl, setSiteUrl] = useState("");
   const [text, setText] = useState("");
+  const [inputNumber, setInputNumber] = useState("");
 
   const checkYoutube = async () => {
     setIsYoutube("");
@@ -65,7 +66,7 @@ const FlashCards = () => {
           messages: [
             {
               role: "user",
-              content: `Create short questions and answers based on the following context. Remember that the 
+              content: `Create ${inputNumber} short questions and answers based on the following context. Remember that the 
             answers must be within the context. The Context is :-
 
             ${data.transcription}
@@ -112,20 +113,22 @@ const FlashCards = () => {
     var encodedUrl = encodeURIComponent(siteUrl);
     console.log(encodedUrl);
     try {
-      const response = await fetch(`http://localhost:8000/extract_article/${encodedUrl}`);
-    const data = await response.json();
+      const response = await fetch(
+        `http://localhost:8000/extract_article/${encodedUrl}`
+      );
+      const data = await response.json();
 
-    // Log the text directly after extraction
-    console.log("Text extracted is ", data.text);
+      // Log the text directly after extraction
+      console.log("Text extracted is ", data.text);
 
-    setText(data.text);
+      setText(data.text);
 
       const completion = await openai.createChatCompletion({
         model: "gpt-3.5-turbo",
         messages: [
           {
             role: "user",
-            content: `Create short questions and answers based on the following context. Remember that the 
+            content: `Create ${inputNumber} short questions and answers based on the following context. Remember that the 
             answers must be within the context. The Context is :-
 
             ${data.text}
@@ -169,9 +172,25 @@ const FlashCards = () => {
     <div className="flashCardsWrapper">
       {isYoutube === "" ? <button onClick={checkYoutube}>Start</button> : null}
       {isYoutube === "Yes" ? (
-        <button onClick={createQuestionAnswers}>Generate Flashcards</button>
+        <>
+          <input
+            type="number"
+            id="youtubeInput"
+            onChange={(e) => setInputNumber(e.target.value)}
+            placeholder="How many Flashcards do you want?"
+          />
+          <button onClick={createQuestionAnswers}>Generate Flashcards</button>
+        </>
       ) : isYoutube === "No" ? (
-        <button onClick={handleTextExtraction}>Extract Text</button>
+        <>
+          <input
+            type="number"
+            id="textExtractionInput"
+            onChange={(e) => setInputNumber(e.target.value)}
+            placeholder="How many Flashcards do you want?"
+          />
+          <button onClick={handleTextExtraction}>Extract Text</button>
+        </>
       ) : null}
       {loading && <h3>Creating Flashcards...</h3>}
       {quizData && (
