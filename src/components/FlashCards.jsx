@@ -58,6 +58,7 @@ const FlashCards = () => {
         }
         const data = await response.json();
         setTranscript(data.transcription);
+        console.log("Transcript : ", transcript);
 
         const completion = await openai.createChatCompletion({
           model: "gpt-3.5-turbo",
@@ -67,7 +68,7 @@ const FlashCards = () => {
               content: `Create short questions and answers based on the following context. Remember that the 
             answers must be within the context. The Context is :-
 
-            ${transcript}
+            ${data.transcription}
             
             Your response should strictly be JSON data of the following 
             format :-
@@ -111,14 +112,13 @@ const FlashCards = () => {
     var encodedUrl = encodeURIComponent(siteUrl);
     console.log(encodedUrl);
     try {
-      const response = await fetch(
-        `http://localhost:8000/extract_article/${encodedUrl}`
-      )
-        .then((response) => response.json())
-        .then((data) => setText(data.text))
-        .catch((error) => {
-          console.error("Error:", error);
-        });
+      const response = await fetch(`http://localhost:8000/extract_article/${encodedUrl}`);
+    const data = await response.json();
+
+    // Log the text directly after extraction
+    console.log("Text extracted is ", data.text);
+
+    setText(data.text);
 
       const completion = await openai.createChatCompletion({
         model: "gpt-3.5-turbo",
@@ -128,7 +128,7 @@ const FlashCards = () => {
             content: `Create short questions and answers based on the following context. Remember that the 
             answers must be within the context. The Context is :-
 
-            ${text}
+            ${data.text}
             
             Your response should strictly be JSON data of the following 
             format :-
