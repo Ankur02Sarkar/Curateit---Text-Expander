@@ -20,22 +20,21 @@ app.add_middleware(
 def read_root():
     return {"message": "API is running"}
 
-@app.get("/transcript/{video_id}")
-async def get_transcript(video_id: str):
+@app.get("/transcript/{video_id}/{start_index}/{end_index}")
+async def get_transcript(video_id: str, start_index: int, end_index: int):
     try:
         transcript = YouTubeTranscriptApi.get_transcript(video_id)
         all_text = " ".join([entry['text'] for entry in transcript])
-        return {"transcription": all_text}
+        return {"transcription": all_text[start_index:end_index]}
     except Exception as e:
         return {"error": str(e)}
 
-@app.get("/extract_article/{url:path}")
-def extract_article(url: str):
+@app.get("/extract_article/{url:path}/{start_index}/{end_index}")
+def extract_article(url: str, start_index: int, end_index: int):
     try:
         decoded_url = unquote(url)
         goose = Goose()
         article = goose.extract(decoded_url)
-        return {"text" : article.cleaned_text}
+        return {"text" : article.cleaned_text[start_index:end_index]}
     except Exception as e:
         return {"error": str(e)}
-

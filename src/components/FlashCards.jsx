@@ -17,6 +17,9 @@ const FlashCards = () => {
   const [siteUrl, setSiteUrl] = useState("");
   const [text, setText] = useState("");
   const [inputNumber, setInputNumber] = useState("");
+  const [currentIndexFlashCards, setCurrentIndexFlashCards] = useState(0);
+  const [currentIndexTextExtraction, setCurrentIndexTextExtraction] =
+    useState(0);
 
   const checkYoutube = async () => {
     setIsYoutube("");
@@ -45,28 +48,28 @@ const FlashCards = () => {
       const siteUrl = tabs[0].url;
       console.log("url from createQuestionAnswers : ", siteUrl);
 
-      // Extract YouTube video ID
       const url = new URL(siteUrl);
       const videoId = new URLSearchParams(url.search).get("v");
       console.log("YouTube video ID: ", videoId);
 
-      try {
-        const response = await fetch(
-          `http://localhost:8000/transcript/${videoId}`
-        );
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const data = await response.json();
-        setTranscript(data.transcription);
-        console.log("Transcript : ", transcript);
+      const response = await fetch(
+        `http://localhost:8000/transcript/${videoId}/${currentIndexFlashCards}/${
+          currentIndexFlashCards + 2000
+        }`
+      );
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+      setTranscript(data.transcription);
+      console.log("Transcript : ", data.transcription);
 
-        const completion = await openai.createChatCompletion({
-          model: "gpt-3.5-turbo",
-          messages: [
-            {
-              role: "user",
-              content: `Create ${inputNumber} short questions and answers based on the following context. Remember that the 
+      const completion = await openai.createChatCompletion({
+        model: "gpt-3.5-turbo",
+        messages: [
+          {
+            role: "user",
+            content: `Create ${inputNumber} short questions and answers based on the following context. Remember that the 
             answers must be within the context. The Context is :-
 
             ${data.transcription}
@@ -90,38 +93,40 @@ const FlashCards = () => {
 
             Remember that the JSON Format should be STRICTLY like the one given above and not some different format. 
             `,
-            },
-          ],
-        });
+          },
+        ],
+      });
 
-        const result = completion.data.choices[0].message.content.trim();
-        const jsonResult = extractJSON(result);
-        console.log("res is : ", jsonResult);
-        const parsedResult = JSON.parse(jsonResult);
-        console.log("parsed res is : ", parsedResult);
-        setQuizData(parsedResult);
-        setLoading(false);
-      } catch (error) {
-        console.error(error);
-      }
+      const result = completion.data.choices[0].message.content.trim();
+      const jsonResult = extractJSON(result);
+      console.log("res is : ", jsonResult);
+      const parsedResult = JSON.parse(jsonResult);
+      setQuizData((oldQuizData) => [...oldQuizData, ...parsedResult]);
+      setCurrentIndexFlashCards(currentIndexFlashCards + 2000);
+      setLoading(false);
     });
   };
 
   const handleTextExtraction = async () => {
     setLoading(true);
-    console.log("url from handleTextExtraction : ", siteUrl);
-    var encodedUrl = encodeURIComponent(siteUrl);
-    console.log(encodedUrl);
-    try {
+    chrome.tabs.query({ active: true, currentWindow: true }, async (tabs) => {
+      const siteUrl = tabs[0].url;
+      console.log("url from handleTextExtraction : ", siteUrl);
+
+      const encodedUrl = encodeURIComponent(siteUrl);
+      console.log("Encoded URL : ", encodedUrl);
+
       const response = await fetch(
-        `http://localhost:8000/extract_article/${encodedUrl}`
+        `http://localhost:8000/extract_article/${encodedUrl}/${currentIndexTextExtraction}/${
+          currentIndexTextExtraction + 2000
+        }`
       );
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
       const data = await response.json();
-
-      // Log the text directly after extraction
-      console.log("Text extracted is ", data.text);
-
       setText(data.text);
+      console.log("Text : ", data.text);
 
       const completion = await openai.createChatCompletion({
         model: "gpt-3.5-turbo",
@@ -160,38 +165,45 @@ const FlashCards = () => {
       const jsonResult = extractJSON(result);
       console.log("res is : ", jsonResult);
       const parsedResult = JSON.parse(jsonResult);
-      console.log("parsed res is : ", parsedResult);
-      setQuizData(parsedResult);
+      setQuizData((oldQuizData) => [...oldQuizData, ...parsedResult]);
+      setCurrentIndexTextExtraction(currentIndexTextExtraction + 2000);
       setLoading(false);
-    } catch (error) {
-      console.error(error);
-    }
+    });
   };
+
+  // useEffect(() => {
+  //   checkYoutube();
+  // }, []);
 
   return (
     <div className="flashCardsWrapper">
       {isYoutube === "" ? <button onClick={checkYoutube}>Start</button> : null}
-      {isYoutube === "Yes" ? (
-        <>
-          <input
-            type="number"
-            id="youtubeInput"
-            onChange={(e) => setInputNumber(e.target.value)}
-            placeholder="How many Flashcards do you want?"
-          />
-          <button onClick={createQuestionAnswers}>Generate Flashcards</button>
-        </>
-      ) : isYoutube === "No" ? (
+      {isYoutube === "Yes" && (
         <>
           <input
             type="number"
             id="textExtractionInput"
             onChange={(e) => setInputNumber(e.target.value)}
-            placeholder="How many Flashcards do you want?"
+            placeholder="Number of Flashcards"
           />
-          <button onClick={handleTextExtraction}>Extract Text</button>
+          <button onClick={createQuestionAnswers} disabled={loading}>
+            Generate More Flashcards
+          </button>
         </>
-      ) : null}
+      )}
+      {isYoutube === "No" && (
+        <>
+          <input
+            type="number"
+            id="textExtractionInput"
+            onChange={(e) => setInputNumber(e.target.value)}
+            placeholder="Number of Flashcards"
+          />
+          <button onClick={handleTextExtraction} disabled={loading}>
+            Extract More Text
+          </button>
+        </>
+      )}
       {loading && <h3>Creating Flashcards...</h3>}
       {quizData && (
         <div className="flashCards">
