@@ -1,6 +1,8 @@
 /* global chrome */
 import React, { useEffect, useState } from "react";
 import { Configuration, OpenAIApi } from "openai";
+import jsPDF from "jspdf";
+import html2canvas from "html2canvas";
 import "./FlashCards.css";
 
 const configuration = new Configuration({
@@ -44,6 +46,32 @@ const FlashCards = () => {
     let jsonStr = str.substring(startIndex, endIndex);
     return jsonStr;
   }
+
+  const savePdf = () => {
+    const doc = new jsPDF();
+    const pageWidth = doc.internal.pageSize.getWidth() - 20; // consider some margin
+    let yCoordinate = 10;
+
+    quizData.forEach((item, index) => {
+      const questionLines = doc.splitTextToSize(
+        `Question ${index + 1}: ${item.question}`,
+        pageWidth
+      );
+      const answerLines = doc.splitTextToSize(
+        `Answer ${index + 1}: ${item.answer}`,
+        pageWidth
+      );
+
+      doc.text(questionLines, 10, yCoordinate);
+      yCoordinate = yCoordinate + questionLines.length * 7; // consider line spacing for question text
+
+      doc.text(answerLines, 10, yCoordinate);
+      yCoordinate = yCoordinate + answerLines.length * 7; // consider line spacing for answer text
+
+      yCoordinate = yCoordinate + 10; // space between different QA pairs
+    });
+    doc.save("quiz.pdf");
+  };
 
   const createQuestionAnswers = async () => {
     setLoading(true);
@@ -116,7 +144,9 @@ const FlashCards = () => {
       const jsonResult = extractJSON(result);
       console.log("res is : ", jsonResult);
       const parsedResult = JSON.parse(jsonResult);
+
       // need to remove duplicates in quiz data
+
       setQuizData((oldQuizData) => [...oldQuizData, ...parsedResult]);
       setCurrentIndexFlashCards(currentIndexFlashCards + 8000);
       setLoading(false);
@@ -205,6 +235,7 @@ const FlashCards = () => {
   return (
     <div className="flashCardsWrapper">
       {isYoutube === "" ? <button onClick={checkYoutube}>Start</button> : null}
+      <button onClick={savePdf}>Save as PDF</button>
       {isYoutube === "Yes" && (
         <>
           <input
@@ -242,7 +273,7 @@ const FlashCards = () => {
       {loading && <h3>Creating Flashcards...</h3>}
       {endOfResult && <h3>No more Content</h3>}
       {quizData && (
-        <div className="flashCards">
+        <div id="quiz-data" className="flashCards">
           {quizData.map((item, index) => (
             <label key={index}>
               <input type="checkbox" />
