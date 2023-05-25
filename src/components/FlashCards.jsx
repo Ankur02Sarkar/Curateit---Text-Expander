@@ -20,6 +20,9 @@ const FlashCards = () => {
   const [currentIndexFlashCards, setCurrentIndexFlashCards] = useState(0);
   const [currentIndexTextExtraction, setCurrentIndexTextExtraction] =
     useState(0);
+  const [hasGeneratedFlashCards, setHasGeneratedFlashCards] = useState(false);
+  const [hasExtractedText, setHasExtractedText] = useState(false);
+  const [endOfResult, setEndOfResult] = useState(false);
 
   const checkYoutube = async () => {
     setIsYoutube("");
@@ -44,6 +47,7 @@ const FlashCards = () => {
 
   const createQuestionAnswers = async () => {
     setLoading(true);
+    setEndOfResult(false);
     chrome.tabs.query({ active: true, currentWindow: true }, async (tabs) => {
       const siteUrl = tabs[0].url;
       console.log("url from createQuestionAnswers : ", siteUrl);
@@ -54,16 +58,27 @@ const FlashCards = () => {
 
       const response = await fetch(
         `http://localhost:8000/transcript/${videoId}/${currentIndexFlashCards}/${
-          currentIndexFlashCards + 2000
+          currentIndexFlashCards + 8000
         }`
       );
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       const data = await response.json();
+
+      if (currentIndexFlashCards + 8000 >= data.transcription.length) {
+        setCurrentIndexFlashCards(0); // Reset index to 0 if we've reached the end
+      } else {
+        setCurrentIndexFlashCards(currentIndexFlashCards + 8000);
+      }
       setTranscript(data.transcription);
       console.log("Transcript : ", data.transcription);
-
+      if (data.transcription == "") {
+        console.log("Empty transcription:", data.transcription);
+        setLoading(false);
+        setEndOfResult(true);
+        return;
+      }
       const completion = await openai.createChatCompletion({
         model: "gpt-3.5-turbo",
         messages: [
@@ -101,14 +116,17 @@ const FlashCards = () => {
       const jsonResult = extractJSON(result);
       console.log("res is : ", jsonResult);
       const parsedResult = JSON.parse(jsonResult);
+      // need to remove duplicates in quiz data
       setQuizData((oldQuizData) => [...oldQuizData, ...parsedResult]);
-      setCurrentIndexFlashCards(currentIndexFlashCards + 2000);
+      setCurrentIndexFlashCards(currentIndexFlashCards + 8000);
       setLoading(false);
     });
+    setHasGeneratedFlashCards(true);
   };
 
   const handleTextExtraction = async () => {
     setLoading(true);
+    setEndOfResult(false);
     chrome.tabs.query({ active: true, currentWindow: true }, async (tabs) => {
       const siteUrl = tabs[0].url;
       console.log("url from handleTextExtraction : ", siteUrl);
@@ -118,16 +136,27 @@ const FlashCards = () => {
 
       const response = await fetch(
         `http://localhost:8000/extract_article/${encodedUrl}/${currentIndexTextExtraction}/${
-          currentIndexTextExtraction + 2000
+          currentIndexTextExtraction + 8000
         }`
       );
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       const data = await response.json();
+
+      if (currentIndexTextExtraction + 8000 >= data.text.length) {
+        setCurrentIndexTextExtraction(0); // Reset index to 0 if we've reached the end
+      } else {
+        setCurrentIndexTextExtraction(currentIndexTextExtraction + 8000);
+      }
       setText(data.text);
       console.log("Text : ", data.text);
-
+      if (data.text == "") {
+        console.log("Empty Text:", data.text);
+        setLoading(false);
+        setEndOfResult(true);
+        return;
+      }
       const completion = await openai.createChatCompletion({
         model: "gpt-3.5-turbo",
         messages: [
@@ -164,16 +193,14 @@ const FlashCards = () => {
       const result = completion.data.choices[0].message.content.trim();
       const jsonResult = extractJSON(result);
       console.log("res is : ", jsonResult);
+
       const parsedResult = JSON.parse(jsonResult);
       setQuizData((oldQuizData) => [...oldQuizData, ...parsedResult]);
-      setCurrentIndexTextExtraction(currentIndexTextExtraction + 2000);
+      setCurrentIndexTextExtraction(currentIndexTextExtraction + 8000);
       setLoading(false);
     });
+    setHasExtractedText(true);
   };
-
-  // useEffect(() => {
-  //   checkYoutube();
-  // }, []);
 
   return (
     <div className="flashCardsWrapper">
@@ -187,7 +214,11 @@ const FlashCards = () => {
             placeholder="Number of Flashcards"
           />
           <button onClick={createQuestionAnswers} disabled={loading}>
-            Generate More Flashcards
+            {loading && hasGeneratedFlashCards
+              ? "Generating More Flashcards..."
+              : hasGeneratedFlashCards
+              ? "Generate More Flashcards"
+              : "Generate Flashcards"}
           </button>
         </>
       )}
@@ -200,11 +231,16 @@ const FlashCards = () => {
             placeholder="Number of Flashcards"
           />
           <button onClick={handleTextExtraction} disabled={loading}>
-            Extract More Text
+            {loading && hasExtractedText
+              ? "Extracting More Text..."
+              : hasExtractedText
+              ? "Extract More Text"
+              : "Extract Text"}
           </button>
         </>
       )}
       {loading && <h3>Creating Flashcards...</h3>}
+      {endOfResult && <h3>No more Content</h3>}
       {quizData && (
         <div className="flashCards">
           {quizData.map((item, index) => (

@@ -24,7 +24,7 @@ body {
   /* background-image: linear-gradient(315deg, #ffab00 0%, #ff5159 74%); */
   background: #f2f8fa;
   color: #25374e;
-  overflow: auto;
+  /* overflow: auto; */
 }
 
 #todolist h1 {
