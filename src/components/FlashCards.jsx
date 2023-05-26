@@ -254,7 +254,6 @@ const FlashCards = () => {
   return (
     <div className="flashCardsWrapper">
       {isYoutube === "" ? <button onClick={checkYoutube}>Start</button> : null}
-      <button onClick={savePdf}>Save as PDF</button>
 
       {isYoutube === "Yes" && (
         <>
@@ -290,6 +289,8 @@ const FlashCards = () => {
           </button>
         </>
       )}
+      {quizData.length > 0 && <button onClick={savePdf}>Save as PDF</button>}
+
       {loading && <h3>Creating Flashcards...</h3>}
       {endOfResult && <h3>No more Content</h3>}
       {quizData && (
