@@ -49,6 +49,7 @@ const FlashCards = () => {
 
   const savePdf = () => {
     const doc = new jsPDF();
+    const pageHeight = doc.internal.pageSize.getHeight() - 20; // consider some margin
     const pageWidth = doc.internal.pageSize.getWidth() - 20; // consider some margin
     let yCoordinate = 10;
 
@@ -62,13 +63,31 @@ const FlashCards = () => {
         pageWidth
       );
 
+      // Check if adding the question lines would exceed page height
+      if (yCoordinate + questionLines.length * 7 > pageHeight) {
+        doc.addPage();
+        yCoordinate = 10; // Reset y coordinate to top of new page
+      }
+
       doc.text(questionLines, 10, yCoordinate);
       yCoordinate = yCoordinate + questionLines.length * 7; // consider line spacing for question text
+
+      // Check if adding the answer lines would exceed page height
+      if (yCoordinate + answerLines.length * 7 > pageHeight) {
+        doc.addPage();
+        yCoordinate = 10; // Reset y coordinate to top of new page
+      }
 
       doc.text(answerLines, 10, yCoordinate);
       yCoordinate = yCoordinate + answerLines.length * 7; // consider line spacing for answer text
 
-      yCoordinate = yCoordinate + 10; // space between different QA pairs
+      // Add space between different QA pairs, and check if it would exceed page height
+      if (yCoordinate + 10 > pageHeight) {
+        doc.addPage();
+        yCoordinate = 10; // Reset y coordinate to top of new page
+      } else {
+        yCoordinate = yCoordinate + 10;
+      }
     });
     doc.save("quiz.pdf");
   };
@@ -236,6 +255,7 @@ const FlashCards = () => {
     <div className="flashCardsWrapper">
       {isYoutube === "" ? <button onClick={checkYoutube}>Start</button> : null}
       <button onClick={savePdf}>Save as PDF</button>
+
       {isYoutube === "Yes" && (
         <>
           <input
