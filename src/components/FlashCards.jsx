@@ -4,6 +4,7 @@ import { Configuration, OpenAIApi } from "openai";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 import "./FlashCards.css";
+import Quiz from "./Quiz";
 
 const configuration = new Configuration({
   apiKey: process.env.REACT_APP_OPENAI_API_KEY,
@@ -25,6 +26,7 @@ const FlashCards = () => {
   const [hasGeneratedFlashCards, setHasGeneratedFlashCards] = useState(false);
   const [hasExtractedText, setHasExtractedText] = useState(false);
   const [endOfResult, setEndOfResult] = useState(false);
+  const [radioSelection, setRadioSelection] = useState("flashCardsWrapper");
 
   const checkYoutube = async () => {
     setIsYoutube("");
@@ -252,72 +254,103 @@ const FlashCards = () => {
   };
 
   return (
-    <div className="flashCardsWrapper">
+    <>
       {isYoutube === "" ? <button onClick={checkYoutube}>Start</button> : null}
-      <button onClick={savePdf}>Save as PDF</button>
-
-      {isYoutube === "Yes" && (
+      {isYoutube && (
         <>
-          <input
-            type="number"
-            id="textExtractionInput"
-            onChange={(e) => setInputNumber(e.target.value)}
-            placeholder="Number of Flashcards"
-          />
-          <button onClick={createQuestionAnswers} disabled={loading}>
-            {loading && hasGeneratedFlashCards
-              ? "Generating More Flashcards..."
-              : hasGeneratedFlashCards
-              ? "Generate More Flashcards"
-              : "Generate Flashcards"}
-          </button>
-        </>
-      )}
-      {isYoutube === "No" && (
-        <>
-          <input
-            type="number"
-            id="textExtractionInput"
-            onChange={(e) => setInputNumber(e.target.value)}
-            placeholder="Number of Flashcards"
-          />
-          <button onClick={handleTextExtraction} disabled={loading}>
-            {loading && hasExtractedText
-              ? "Extracting More Text..."
-              : hasExtractedText
-              ? "Extract More Text"
-              : "Extract Text"}
-          </button>
-        </>
-      )}
-      {loading && <h3>Creating Flashcards...</h3>}
-      {endOfResult && <h3>No more Content</h3>}
-      {quizData && (
-        <div id="quiz-data" className="flashCards">
-          {quizData.map((item, index) => (
-            <label key={index}>
-              <input type="checkbox" />
-              <div className="flip-card">
-                <div className="front">
-                  <h1>Question</h1>
-                  <hr />
-                  <p>{item.question}</p>
-                  <hr />
-                  <p className="click">Show Answer</p>
-                </div>
-                <div className="back">
-                  <h1>Answer</h1>
-                  <hr />
-                  <p>{item.answer}</p>
-                  <hr />
-                  <p className="click">Show Question</p>
-                </div>
-              </div>
+          <div>
+            <label>
+              <input
+                type="radio"
+                value="flashCardsWrapper"
+                checked={radioSelection === "flashCardsWrapper"}
+                onChange={(e) => setRadioSelection(e.target.value)}
+              />
+              Flash Cards
             </label>
-          ))}
-        </div>
+
+            <label>
+              <input
+                type="radio"
+                value="hello"
+                checked={radioSelection === "hello"}
+                onChange={(e) => setRadioSelection(e.target.value)}
+              />
+              Quiz
+            </label>
+          </div>
+          {radioSelection === "flashCardsWrapper" ? (
+            <div className="flashCardsWrapper">
+              <button onClick={savePdf}>Save as PDF</button>
+
+              {isYoutube === "Yes" && (
+                <>
+                  <input
+                    type="number"
+                    id="textExtractionInput"
+                    onChange={(e) => setInputNumber(e.target.value)}
+                    placeholder="Number of Flashcards"
+                  />
+                  <button onClick={createQuestionAnswers} disabled={loading}>
+                    {loading && hasGeneratedFlashCards
+                      ? "Generating More Flashcards..."
+                      : hasGeneratedFlashCards
+                      ? "Generate More Flashcards"
+                      : "Generate Flashcards"}
+                  </button>
+                </>
+              )}
+              {isYoutube === "No" && (
+                <>
+                  <input
+                    type="number"
+                    id="textExtractionInput"
+                    onChange={(e) => setInputNumber(e.target.value)}
+                    placeholder="Number of Flashcards"
+                  />
+                  <button onClick={handleTextExtraction} disabled={loading}>
+                    {loading && hasExtractedText
+                      ? "Extracting More Text..."
+                      : hasExtractedText
+                      ? "Extract More Text"
+                      : "Extract Text"}
+                  </button>
+                </>
+              )}
+              {loading && <h3>Creating Flashcards...</h3>}
+              {endOfResult && <h3>No more Content</h3>}
+              {quizData && (
+                <div id="quiz-data" className="flashCards">
+                  {quizData.map((item, index) => (
+                    <label key={index}>
+                      <input type="checkbox" />
+                      <div className="flip-card">
+                        <div className="front">
+                          <h1>Question</h1>
+                          <hr />
+                          <p>{item.question}</p>
+                          <hr />
+                          <p className="click">Show Answer</p>
+                        </div>
+                        <div className="back">
+                          <h1>Answer</h1>
+                          <hr />
+                          <p>{item.answer}</p>
+                          <hr />
+                          <p className="click">Show Question</p>
+                        </div>
+                      </div>
+                    </label>
+                  ))}
+                </div>
+              )}
+            </div>
+          ) : (
+            <Quiz />
+          )}
+        </>
       )}
-    </div>
+    </>
   );
 };
 
