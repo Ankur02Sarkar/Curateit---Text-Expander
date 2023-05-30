@@ -262,6 +262,18 @@ function showSuggestions(event) {
     suggestionBox.onclick = (e) => {
       if (e.target.classList.contains("suggestion-item")) {
         const selectedExpansion = e.target.textContent;
+        console.log("sel exp : ", selectedExpansion);
+        const shortcut = e.target.children[0].children[0].textContent; // Assuming the shortcut is in the first div of the suggestion item
+
+        console.log(`On Click Shortcut: ${shortcut}`);
+        // console.log(`On Click Expansion: ${expansions[selectedExpansion]}`);
+        console.log(
+          `On Click Expansion: ${e.target.children[0].children[1].textContent}`
+        );
+        console.log(`On Click Current target: `, target); // Assuming target is in scope
+        const targetText = target.value || target.textContent;
+        const expanedtxt = e.target.children[0].children[1].textContent;
+        console.log("Target Text : ", targetText);
 
         if (target.isContentEditable) {
           const range = window.getSelection().getRangeAt(0);
@@ -282,6 +294,8 @@ function showSuggestions(event) {
             "end"
           );
         }
+        handleSite(target, targetText, expanedtxt);
+
         suggestionBox.style.display = "none";
       } else if (e.target.classList.contains("delete-suggestion")) {
         e.stopPropagation(); // Prevent triggering the suggestion-item click event
@@ -290,40 +304,8 @@ function showSuggestions(event) {
         e.target.parentElement.style.display = "none";
       }
     };
-
-    // ...
   });
 }
-
-// function createIframeOverlay(url) {
-//   const overlay = document.createElement("div");
-//   overlay.style.position = "fixed";
-//   overlay.style.top = "0";
-//   overlay.style.left = "0";
-//   overlay.style.width = "100%";
-//   overlay.style.height = "100%";
-//   overlay.style.backgroundColor = "rgba(0, 0, 0, 0.5)";
-//   overlay.style.zIndex = "9999999";
-
-//   const iframe = document.createElement("iframe");
-//   iframe.src = url;
-//   iframe.style.border = "none";
-//   iframe.style.width = "400px";
-//   iframe.style.height = "600px";
-//   iframe.style.position = "absolute";
-//   iframe.style.left = "50%";
-//   iframe.style.top = "50%";
-//   iframe.style.transform = "translate(-50%, -50%)";
-
-//   overlay.appendChild(iframe);
-//   document.body.appendChild(overlay);
-
-//   overlay.addEventListener("click", (e) => {
-//     if (e.target === overlay) {
-//       document.body.removeChild(overlay);
-//     }
-//   });
-// }
 
 function createIframeOverlay(url) {
   const overlay = document.createElement("div");
