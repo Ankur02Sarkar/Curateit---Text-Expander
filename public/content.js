@@ -240,9 +240,9 @@ function showSuggestions(event) {
         // const truncatedExpansion = truncateText(expansions[suggestion], 30); // change the number of chars to be displayed
         const truncatedExpansion = expansions[suggestion];
         return `<div class="suggestion-item">
-        <div>
+        <div class="itemWrapper">
           <div>${suggestion}</div>
-          <div style="font-size: 0.8em; color: #777;">${truncatedExpansion}</div>
+          <div style="font-size: 0.8em; color: #777; max-width: 80px; max-height: 18px; overflow: hidden;">${truncatedExpansion}</div>
         </div>
           <button class="delete-suggestion delete-icon" data-key="${suggestion}"></button>
         </div>`;
@@ -262,6 +262,7 @@ function showSuggestions(event) {
 
     // Update the suggestionBox.onclick function to ignore clicks on the delete button
     suggestionBox.onclick = (e) => {
+      console.log("e : ", e.target);
       if (e.target.classList.contains("suggestion-item")) {
         const selectedExpansion = e.target.textContent;
         console.log("sel exp : ", selectedExpansion);
