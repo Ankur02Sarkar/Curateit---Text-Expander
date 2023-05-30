@@ -35,6 +35,7 @@ injectStyles(`
     height: 100%;
     border-bottom: 1px solid #ccc;
     font-size: 0.9em;
+    column-gap: 20px;
   }
 
   .suggestion-item:last-child {
@@ -236,7 +237,8 @@ function showSuggestions(event) {
     // Update the suggestion-item template to include a delete button
     suggestionBox.innerHTML = suggestions
       .map((suggestion) => {
-        const truncatedExpansion = truncateText(expansions[suggestion], 30);
+        // const truncatedExpansion = truncateText(expansions[suggestion], 30); // change the number of chars to be displayed
+        const truncatedExpansion = expansions[suggestion];
         return `<div class="suggestion-item">
         <div>
           <div>${suggestion}</div>
