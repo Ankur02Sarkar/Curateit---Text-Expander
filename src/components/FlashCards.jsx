@@ -255,7 +255,8 @@ const FlashCards = () => {
 
   return (
     <>
-      {isYoutube === "" ? <button onClick={checkYoutube}>Start</button> : null}
+     <Quiz />
+      {/* {isYoutube === "" ? <button onClick={checkYoutube}>Start</button> : null}
       {isYoutube && (
         <>
           <div>
@@ -349,7 +350,7 @@ const FlashCards = () => {
             <Quiz />
           )}
         </>
-      )}
+      )} */}
     </>
   );
 };
