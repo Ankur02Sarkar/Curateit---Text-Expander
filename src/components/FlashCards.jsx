@@ -43,9 +43,15 @@ const FlashCards = () => {
   };
 
   function extractJSON(str) {
+    // Check if the string starts with "(" and ends with ")"
+    if (str.startsWith("(") && str.endsWith(")")) {
+      str = str.substring(1, str.length - 1); // Remove the parentheses
+    }
+
     let startIndex = str.indexOf("[");
     let endIndex = str.lastIndexOf("]") + 1;
     let jsonStr = str.substring(startIndex, endIndex);
+
     return jsonStr;
   }
 
@@ -129,7 +135,7 @@ const FlashCards = () => {
         return;
       }
       const completion = await openai.createChatCompletion({
-        model: "gpt-3.5-turbo",
+        model: "gpt-4",
         messages: [
           {
             role: "user",
@@ -140,20 +146,40 @@ const FlashCards = () => {
             
             Your response should strictly be JSON data of the following 
             format :-
-            [
-              {
-                  "question": "Question 1",
-                  "answer": "Answer 1"
-              },
-              {
-                  "question": "Question 2",
-                  "answer": "Answer 2"
-              },
-              {
-                  "question": "Question 3",
-                  "answer": "Answer 3"
-              }
-            ]
+            (
+              [
+                {
+                  "question": "What is the capital of India?",
+                  "answer": "Delhi is the Capital of India",
+                  "answerOptions": [
+                    { "answerText": "Delhi", "isCorrect": true },
+                    { "answerText": "Pune", "isCorrect": false },
+                    { "answerText": "Ranchi", "isCorrect": false },
+                    { "answerText": "Patna", "isCorrect": false }
+                  ]
+                },
+                {
+                  "question": "Who is the Prime Minister of China?",
+                  "answer": "Beijing is the Prime Minister of China",
+                  "answerOptions": [
+                    { "answerText": "Fumio Kishida", "isCorrect": true },
+                    { "answerText": "Modi", "isCorrect": false },
+                    { "answerText": "Trump", "isCorrect": false },
+                    { "answerText": "Obama", "isCorrect": false }
+                  ]
+                },
+                {
+                  "question": "What is 1 + 1?",
+                  "answer": "1 + 1 is 2",
+                  "answerOptions": [
+                    { "answerText": "2", "isCorrect": true },
+                    { "answerText": "3", "isCorrect": false },
+                    { "answerText": "7", "isCorrect": false },
+                    { "answerText": "12", "isCorrect": false }
+                  ]
+                }
+              ]
+            )
 
             Remember that the JSON Format should be STRICTLY like the one given above and not some different format. 
             `,
@@ -161,10 +187,48 @@ const FlashCards = () => {
         ],
       });
 
-      const result = completion.data.choices[0].message.content.trim();
+      let result = completion.data.choices[0].message.content.trim();
+      console.log("openai res : \n", result);
+      // result = `(
+      //   [
+      //         {
+      //           "question": "What is the capital of India?",
+      //           "answer": "Delhi is the Capital of India",
+      //           "answerOptions": [
+      //             { "answerText": "Delhi", "isCorrect": true },
+      //             { "answerText": "Pune", "isCorrect": false },
+      //             { "answerText": "Ranchi", "isCorrect": false },
+      //             { "answerText": "Patna", "isCorrect": false },
+      //           ],
+      //         },
+      //         {
+      //           "question": "Who is the Prime Minister of China?",
+      //           "answer": "Beijing is the Prime Minister of China",
+      //           "answerOptions": [
+      //             { "answerText": "Fumio Kishida", "isCorrect": true },
+      //             { "answerText": "Modi", "isCorrect": false },
+      //             { "answerText": "Trump", "isCorrect": false },
+      //             { "answerText": "Obama", "isCorrect": false },
+      //           ],
+      //         },
+      //         {
+      //           "question": "What is 1 + 1?",
+      //           "answer": "1 + 1 is 2",
+      //           "answerOptions": [
+      //             { "answerText": "2", "isCorrect": true },
+      //             { "answerText": "3", "isCorrect": false },
+      //             { "answerText": "7", "isCorrect": false },
+      //             { "answerText": "12", "isCorrect": false },
+      //           ],
+      //         },
+      //   ]
+      //   )`;
+      // console.log("openai res MODIFIED : \n", result);
+
       const jsonResult = extractJSON(result);
       console.log("res is : ", jsonResult);
       const parsedResult = JSON.parse(jsonResult);
+      console.log("parsed res is : ", parsedResult);
 
       // need to remove duplicates in quiz data
 
@@ -209,7 +273,7 @@ const FlashCards = () => {
         return;
       }
       const completion = await openai.createChatCompletion({
-        model: "gpt-3.5-turbo",
+        model: "gpt-4",
         messages: [
           {
             role: "user",
@@ -220,20 +284,40 @@ const FlashCards = () => {
             
             Your response should strictly be JSON data of the following 
             format :-
-            [
-              {
-                  "question": "Question 1",
-                  "answer": "Answer 1"
-              },
-              {
-                  "question": "Question 2",
-                  "answer": "Answer 2"
-              },
-              {
-                  "question": "Question 3",
-                  "answer": "Answer 3"
-              }
-            ]
+            (
+              [
+                {
+                  "question": "What is the capital of India?",
+                  "answer": "Delhi is the Capital of India",
+                  "answerOptions": [
+                    { "answerText": "Delhi", "isCorrect": true },
+                    { "answerText": "Pune", "isCorrect": false },
+                    { "answerText": "Ranchi", "isCorrect": false },
+                    { "answerText": "Patna", "isCorrect": false }
+                  ]
+                },
+                {
+                  "question": "Who is the Prime Minister of China?",
+                  "answer": "Beijing is the Prime Minister of China",
+                  "answerOptions": [
+                    { "answerText": "Fumio Kishida", "isCorrect": true },
+                    { "answerText": "Modi", "isCorrect": false },
+                    { "answerText": "Trump", "isCorrect": false },
+                    { "answerText": "Obama", "isCorrect": false }
+                  ]
+                },
+                {
+                  "question": "What is 1 + 1?",
+                  "answer": "1 + 1 is 2",
+                  "answerOptions": [
+                    { "answerText": "2", "isCorrect": true },
+                    { "answerText": "3", "isCorrect": false },
+                    { "answerText": "7", "isCorrect": false },
+                    { "answerText": "12", "isCorrect": false }
+                  ]
+                }
+              ]
+            )
 
             Remember that the JSON Format should be STRICTLY like the one given above and not some different format. 
             `,
@@ -241,11 +325,49 @@ const FlashCards = () => {
         ],
       });
 
-      const result = completion.data.choices[0].message.content.trim();
+      let result = completion.data.choices[0].message.content.trim();
+      console.log("openai res : \n", result);
+      // result = `
+      //   [
+      //       {
+      //         "question": "What is the capital of India?",
+      //         "answer": "Delhi is the Capital of India",
+      //         "answerOptions": [
+      //           { "answerText": "Delhi", "isCorrect": true },
+      //           { "answerText": "Pune", "isCorrect": false },
+      //           { "answerText": "Ranchi", "isCorrect": false },
+      //           { "answerText": "Patna", "isCorrect": false }
+      //         ]
+      //       },
+      //       {
+      //         "question": "Who is the Prime Minister of China?",
+      //         "answer": "Beijing is the Prime Minister of China",
+      //         "answerOptions": [
+      //           { "answerText": "Fumio Kishida", "isCorrect": true },
+      //           { "answerText": "Modi", "isCorrect": false },
+      //           { "answerText": "Trump", "isCorrect": false },
+      //           { "answerText": "Obama", "isCorrect": false }
+      //         ]
+      //       },
+      //       {
+      //         "question": "What is 1 + 1?",
+      //         "answer": "1 + 1 is 2",
+      //         "answerOptions": [
+      //           { "answerText": "2", "isCorrect": true },
+      //           { "answerText": "3", "isCorrect": false },
+      //           { "answerText": "7", "isCorrect": false },
+      //           { "answerText": "12", "isCorrect": false }
+      //         ]
+      //       }
+      //   ]
+      //   `;
+
+      // console.log("openai res MODIFIED : \n", result);
+
       const jsonResult = extractJSON(result);
-      console.log("res is : ", jsonResult);
 
       const parsedResult = JSON.parse(jsonResult);
+      console.log("parsed result : ", parsedResult);
       setQuizData((oldQuizData) => [...oldQuizData, ...parsedResult]);
       setCurrentIndexTextExtraction(currentIndexTextExtraction + 8000);
       setLoading(false);
@@ -255,102 +377,161 @@ const FlashCards = () => {
 
   return (
     <>
-     <Quiz />
-      {/* {isYoutube === "" ? <button onClick={checkYoutube}>Start</button> : null}
-      {isYoutube && (
-        <>
-          <div>
-            <label>
-              <input
-                type="radio"
-                value="flashCardsWrapper"
-                checked={radioSelection === "flashCardsWrapper"}
-                onChange={(e) => setRadioSelection(e.target.value)}
-              />
-              Flash Cards
-            </label>
+      <div>
+        <label>
+          <input
+            type="radio"
+            value="flashCardsWrapper"
+            checked={radioSelection === "flashCardsWrapper"}
+            onChange={(e) => {
+              setQuizData([]);
+              setRadioSelection(e.target.value);
+            }}
+          />
+          Flash Cards
+        </label>
 
-            <label>
-              <input
-                type="radio"
-                value="hello"
-                checked={radioSelection === "hello"}
-                onChange={(e) => setRadioSelection(e.target.value)}
-              />
-              Quiz
-            </label>
-          </div>
-          {radioSelection === "flashCardsWrapper" ? (
-            <div className="flashCardsWrapper">
-              <button onClick={savePdf}>Save as PDF</button>
+        <label>
+          <input
+            type="radio"
+            value="hello"
+            checked={radioSelection === "hello"}
+            onChange={(e) => {
+              setQuizData([]);
+              setRadioSelection(e.target.value);
+            }}
+          />
+          Quiz
+        </label>
+      </div>
+      {radioSelection === "flashCardsWrapper" && (
+        <div className="flashCardsWrapper">
+          {isYoutube === "" ? (
+            <button onClick={checkYoutube}>Start</button>
+          ) : null}
 
-              {isYoutube === "Yes" && (
-                <>
-                  <input
-                    type="number"
-                    id="textExtractionInput"
-                    onChange={(e) => setInputNumber(e.target.value)}
-                    placeholder="Number of Flashcards"
-                  />
-                  <button onClick={createQuestionAnswers} disabled={loading}>
-                    {loading && hasGeneratedFlashCards
-                      ? "Generating More Flashcards..."
-                      : hasGeneratedFlashCards
-                      ? "Generate More Flashcards"
-                      : "Generate Flashcards"}
-                  </button>
-                </>
-              )}
-              {isYoutube === "No" && (
-                <>
-                  <input
-                    type="number"
-                    id="textExtractionInput"
-                    onChange={(e) => setInputNumber(e.target.value)}
-                    placeholder="Number of Flashcards"
-                  />
-                  <button onClick={handleTextExtraction} disabled={loading}>
-                    {loading && hasExtractedText
-                      ? "Extracting More Text..."
-                      : hasExtractedText
-                      ? "Extract More Text"
-                      : "Extract Text"}
-                  </button>
-                </>
-              )}
-              {loading && <h3>Creating Flashcards...</h3>}
-              {endOfResult && <h3>No more Content</h3>}
-              {quizData && (
-                <div id="quiz-data" className="flashCards">
-                  {quizData.map((item, index) => (
-                    <label key={index}>
-                      <input type="checkbox" />
-                      <div className="flip-card">
-                        <div className="front">
-                          <h1>Question</h1>
-                          <hr />
-                          <p>{item.question}</p>
-                          <hr />
-                          <p className="click">Show Answer</p>
-                        </div>
-                        <div className="back">
-                          <h1>Answer</h1>
-                          <hr />
-                          <p>{item.answer}</p>
-                          <hr />
-                          <p className="click">Show Question</p>
-                        </div>
-                      </div>
-                    </label>
-                  ))}
-                </div>
-              )}
-            </div>
-          ) : (
-            <Quiz />
+          <button onClick={savePdf}>Save as PDF</button>
+
+          {isYoutube === "Yes" && (
+            <>
+              <input
+                type="number"
+                id="textExtractionInput"
+                onChange={(e) => setInputNumber(e.target.value)}
+                placeholder="Number of Flashcards"
+              />
+              <button onClick={createQuestionAnswers} disabled={loading}>
+                {loading && hasGeneratedFlashCards
+                  ? "Generating More Flashcards..."
+                  : hasGeneratedFlashCards
+                  ? "Generate More Flashcards"
+                  : "Generate Flashcards"}
+              </button>
+            </>
           )}
-        </>
-      )} */}
+          {isYoutube === "No" && (
+            <>
+              <input
+                type="number"
+                id="textExtractionInput"
+                onChange={(e) => setInputNumber(e.target.value)}
+                placeholder="Number of Flashcards"
+              />
+              <button onClick={handleTextExtraction} disabled={loading}>
+                {loading && hasExtractedText
+                  ? "Extracting More Text..."
+                  : hasExtractedText
+                  ? "Extract More Text"
+                  : "Extract Text"}
+              </button>
+            </>
+          )}
+          {loading && <h3>Creating Flashcards...</h3>}
+          {endOfResult && <h3>No more Content</h3>}
+          {quizData && (
+            <div id="quiz-data" className="flashCards">
+              {quizData.map((item, index) => (
+                <label key={index}>
+                  <input type="checkbox" />
+                  <div className="flip-card">
+                    <div className="front">
+                      <h1>Question</h1>
+                      <hr />
+                      <p>{item.question}</p>
+                      <hr />
+                      <p className="click">Show Answer</p>
+                    </div>
+                    <div className="back">
+                      <h1>Answer</h1>
+                      <hr />
+                      <p>{item.answer}</p>
+                      <hr />
+                      <p className="click">Show Question</p>
+                    </div>
+                  </div>
+                </label>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {radioSelection === "hello" && (
+        <div className="flashCardsWrapper">
+          {isYoutube === "" ? (
+            <button onClick={checkYoutube}>Start</button>
+          ) : null}
+
+          <button onClick={savePdf}>Save as PDF</button>
+
+          {isYoutube === "Yes" && (
+            <>
+              <input
+                type="number"
+                id="textExtractionInput"
+                onChange={(e) => setInputNumber(e.target.value)}
+                placeholder="Number of Questions"
+              />
+              <button onClick={createQuestionAnswers} disabled={loading}>
+                {loading && hasGeneratedFlashCards
+                  ? "Generating More Questions..."
+                  : hasGeneratedFlashCards
+                  ? "Generate More Questions"
+                  : "Generate Questions"}
+              </button>
+            </>
+          )}
+          {isYoutube === "No" && (
+            <>
+              <input
+                type="number"
+                id="textExtractionInput"
+                onChange={(e) => setInputNumber(e.target.value)}
+                placeholder="Number of Questions"
+              />
+              <button onClick={handleTextExtraction} disabled={loading}>
+                {loading && hasExtractedText
+                  ? "Extracting More Text..."
+                  : hasExtractedText
+                  ? "Extract More Text"
+                  : "Extract Text"}
+              </button>
+            </>
+          )}
+          {loading && <h3>Creating Questions...</h3>}
+          {endOfResult && <h3>No more Content</h3>}
+          {/* {quizData && <Quiz questions={quizData} />} */}
+          {console.log("before passing quizdata to comp : ", quizData)}
+
+          {quizData.length > 0 && (
+            <>
+              {console.log("passing quizdata to comp : ", quizData)}
+              <Quiz questions={quizData} />
+            </>
+          )}
+        </div>
+        // <h1>Hello</h1>
+      )}
     </>
   );
 };

@@ -1,18 +1,21 @@
 import React from "react";
 import { useState } from "react";
 import "./quizstyle.css";
-import questions from "./quizData";
+// import questions from "./quizData";
 import QuizResult from "./QuizResult";
-const Quiz = () => {
+const Quiz = (props) => {
+  const questions = props.questions;
   //useState Hook
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [score, setScore] = useState(0);
   const [correctAns, setCorrectAns] = useState(0);
   const [showResult, setShowResult] = useState(false);
   const [clicked, setClicked] = useState(false);
+  const [selectedAnswer, setSelectedAnswer] = useState(null);
 
   const handleNextOption = () => {
     setClicked(false);
+    setSelectedAnswer(null);
     const nextQuestion = currentQuestion + 1;
     if (nextQuestion < questions.length) {
       setCurrentQuestion(nextQuestion);
@@ -21,15 +24,17 @@ const Quiz = () => {
     }
   };
 
-  const handleAnswerOption = (isCorrect) => {
+  const handleAnswerOption = (isCorrect, index) => {
     if (isCorrect) {
       setScore(score + 5);
       setCorrectAns(correctAns + 1);
     }
+    setSelectedAnswer(index);
     setClicked(true);
   };
 
   const handlePlayAgain = () => {
+    setSelectedAnswer(null);
     setCurrentQuestion(0);
     setScore(0);
     setCorrectAns(0);
@@ -48,6 +53,7 @@ const Quiz = () => {
           />
         ) : (
           <>
+            {console.log("quizData in quiz comp : ", questions)}
             <div className="question-section">
               <h5>Score : {score}</h5>
               <div className="question-count">
@@ -56,7 +62,7 @@ const Quiz = () => {
                 </span>
               </div>
               <div className="question-text">
-                {questions[currentQuestion].questionText}
+                {questions[currentQuestion].question}
               </div>
             </div>
             <div className="answer-section">
@@ -64,17 +70,20 @@ const Quiz = () => {
                 return (
                   <button
                     className={`button ${
-                      clicked && ans.isCorrect ? "correct" : "button"
+                      clicked && i === selectedAnswer
+                        ? ans.isCorrect
+                          ? "correct"
+                          : "wrong"
+                        : "button"
                     }`}
                     disabled={clicked}
                     key={i}
-                    onClick={() => handleAnswerOption(ans.isCorrect)}
+                    onClick={() => handleAnswerOption(ans.isCorrect, i)}
                   >
                     {ans.answerText}
                   </button>
                 );
               })}
-              {/* <button>Answers</button> */}
               <div className="actions">
                 <button onClick={handlePlayAgain}>Quit</button>
                 <button disabled={!clicked} onClick={handleNextOption}>

@@ -70,8 +70,11 @@
  }
 
  .correct {
-     background-color: #2f922f !important;
- }
+    background-color: #2f922f !important;
+} 
+.wrong {
+    background-color: red !important;
+}
 
  .app button:hover {
      background-color: #555e7d;

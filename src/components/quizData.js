@@ -1,6 +1,7 @@
 const questions = [
   {
-    questionText: "What is the capital of India?",
+    question: "What is the capital of India?",
+    answer: "Delhi is the Capital of India",
     answerOptions: [
       { answerText: "Delhi", isCorrect: true },
       { answerText: "Pune", isCorrect: false },
@@ -9,39 +10,23 @@ const questions = [
     ],
   },
   {
-    questionText: "Who is the PM of India?",
+    question: "What is the capital of China?",
+    answer: "Beijing is the Capital of China",
     answerOptions: [
-      { answerText: "Amit Shah", isCorrect: false },
-      { answerText: "Modi", isCorrect: true },
-      { answerText: "Raga", isCorrect: false },
-      { answerText: "Kejri", isCorrect: false },
+      { answerText: "Beijing", isCorrect: true },
+      { answerText: "Hong Kong", isCorrect: false },
+      { answerText: "Delhi", isCorrect: false },
+      { answerText: "Texas", isCorrect: false },
     ],
   },
   {
-    questionText: "2 +3 = ?",
+    question: "What is the capital of Japan?",
+    answer: "Tokyo is the Capital of Japan",
     answerOptions: [
-      { answerText: "5", isCorrect: true },
-      { answerText: "7", isCorrect: false },
-      { answerText: "4", isCorrect: false },
-      { answerText: "3", isCorrect: false },
-    ],
-  },
-  {
-    questionText: "What comes after january?",
-    answerOptions: [
-      { answerText: "feb", isCorrect: true },
-      { answerText: "march", isCorrect: false },
-      { answerText: "june", isCorrect: false },
-      { answerText: "sept", isCorrect: false },
-    ],
-  },
-  {
-    questionText: "Which company pankaj is working currently?",
-    answerOptions: [
-      { answerText: "Accenture", isCorrect: false },
-      { answerText: "Oracle", isCorrect: false },
-      { answerText: "L&T", isCorrect: true },
-      { answerText: "IBM", isCorrect: false },
+      { answerText: "Tokyo", isCorrect: true },
+      { answerText: "Texas", isCorrect: false },
+      { answerText: "Beijing", isCorrect: false },
+      { answerText: "Patna", isCorrect: false },
     ],
   },
 ];
