@@ -46,6 +46,14 @@ injectStyles(`
     background-color: #f0f0f0;
   }
 
+  .suggestion-expansion{
+    font-size: 0.8em; 
+    color: #777; 
+    max-width: 80px; 
+    max-height: 18px; 
+    overflow: hidden;
+  }
+
   .delete-icon {
     width: 16px;
     height: 16px;
@@ -239,11 +247,12 @@ function showSuggestions(event) {
       .map((suggestion) => {
         // const truncatedExpansion = truncateText(expansions[suggestion], 30); // change the number of chars to be displayed
         const truncatedExpansion = expansions[suggestion];
-        return `<div class="suggestion-item">
-        <div class="itemWrapper">
-          <div>${suggestion}</div>
-          <div style="font-size: 0.8em; color: #777; max-width: 80px; max-height: 18px; overflow: hidden;">${truncatedExpansion}</div>
-        </div>
+        return `
+        <div class="suggestion-item">
+            <div class="itemWrapper">
+              <div class="suggestion-key">${suggestion}</div>
+              <div class="suggestion-expansion">${truncatedExpansion}</div>
+            </div>
           <button class="delete-suggestion delete-icon" data-key="${suggestion}"></button>
         </div>`;
       })
@@ -262,20 +271,34 @@ function showSuggestions(event) {
 
     // Update the suggestionBox.onclick function to ignore clicks on the delete button
     suggestionBox.onclick = (e) => {
-      console.log("e : ", e.target);
-      if (e.target.classList.contains("suggestion-item")) {
-        const selectedExpansion = e.target.textContent;
+      let targetElement = e.target;
+
+      // Check if the target or any of its parent elements has the 'suggestion-item' class
+      while (targetElement != null) {
+        if (targetElement.classList.contains("suggestion-item")) {
+          break;
+        }
+        targetElement = targetElement.parentElement;
+      }
+
+      // If no parent element has the 'suggestion-item' class, return
+      if (targetElement == null) {
+        return;
+      }
+      console.log("e : ", targetElement);
+      if (targetElement.classList.contains("suggestion-item")) {
+        const selectedExpansion = targetElement.textContent;
         console.log("sel exp : ", selectedExpansion);
-        const shortcut = e.target.children[0].children[0].textContent; // Assuming the shortcut is in the first div of the suggestion item
+        const shortcut = targetElement.children[0].children[0].textContent; // Assuming the shortcut is in the first div of the suggestion item
 
         console.log(`On Click Shortcut: ${shortcut}`);
         // console.log(`On Click Expansion: ${expansions[selectedExpansion]}`);
         console.log(
-          `On Click Expansion: ${e.target.children[0].children[1].textContent}`
+          `On Click Expansion: ${targetElement.children[0].children[1].textContent}`
         );
         console.log(`On Click Current target: `, target); // Assuming target is in scope
         const targetText = target.value || target.textContent;
-        const expanedtxt = e.target.children[0].children[1].textContent;
+        const expanedtxt = targetElement.children[0].children[1].textContent;
         console.log("Target Text : ", targetText);
 
         if (target.isContentEditable) {
@@ -300,16 +323,16 @@ function showSuggestions(event) {
         handleSite(target, targetText, expanedtxt);
 
         suggestionBox.style.display = "none";
-      } else if (e.target.classList.contains("delete-suggestion")) {
+      } else if (targetElement.classList.contains("delete-suggestion")) {
         e.stopPropagation(); // Prevent triggering the suggestion-item click event
-        const key = e.target.dataset.key;
+        const key = targetElement.dataset.key;
         removeExpansion(STORAGE_TEXT_PREFIX + key);
-        e.target.parentElement.style.display = "none";
+        targetElement.parentElement.style.display = "none";
       }
     };
   });
 }
-  
+
 function createIframeOverlay(url) {
   const overlay = document.createElement("div");
   overlay.style.position = "fixed";
